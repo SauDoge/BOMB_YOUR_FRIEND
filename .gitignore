@@ -10,9 +10,6 @@ dist
 # Ignore environment variables file
 .env
 
-# Database
-db
-
 # Ignore editor and IDE files
 .vscode/
 .idea/
