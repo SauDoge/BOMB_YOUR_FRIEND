@@ -132,6 +132,8 @@ const Sprite = function(ctx, x, y) {
     const drawSprite = function() {
         /* Save the settings */
         ctx.save();
+
+
         /* Get the display size of the sprite */
         const size = getDisplaySize();
 
@@ -157,7 +159,7 @@ const Sprite = function(ctx, x, y) {
     // This function draws the shadow and the sprite.
     const draw = function() {
         if (isReady()) {
-            drawShadow();
+            // drawShadow();
             drawSprite();
         }
         return this;
