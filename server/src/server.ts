@@ -18,6 +18,7 @@ const start = () => {
 };
 
 const createServer = () => {
+  router.use(config.server.cookie);
   router.use(incomingMiddleware);
 
   router.use(express.urlencoded({ extended: true }));

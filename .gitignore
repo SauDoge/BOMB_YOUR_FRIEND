@@ -11,5 +11,5 @@ dist
 .env
 
 # Ignore editor and IDE files
-.vscode/
+.vscode/    
 .idea/

@@ -1,9 +1,12 @@
-import express from  'express';
-import controller from '../controllers/UserController';
+import express from "express";
+import { existUserCredentialMiddleware } from "../middlewares/index";
+import controller from "../controllers/UserController";
 
 const router = express.Router();
 
-router.post('/register',controller.register);
+router.get("/test", controller.test);
+router.get("/logout", controller.logout);
+router.post("/register", existUserCredentialMiddleware, controller.register);
+router.post("/login", existUserCredentialMiddleware, controller.login);
 
 export = router;
-
