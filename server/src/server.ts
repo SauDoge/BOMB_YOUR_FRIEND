@@ -1,6 +1,7 @@
 import express from "express";
 import http from "http";
 import logging from "./utils/logging";
+import cors from "cors";
 
 import { config } from "./config/config";
 import { Server } from "socket.io";
@@ -12,12 +13,39 @@ const router = express();
 
 const start = () => {
   const server = createServer();
-  const io = new Server(server);
+  const io = new Server(server, {
+    cors: {
+      origin: "http://localhost:3001",
+      methods: ["GET", "POST"],
+    },
+  });
+
+  io.on("connection", (socket) => {
+    const { address } = socket.handshake;
+    const id = socket.id;
+
+    logging.info(`Connection - IP: [${address}] - ID: [${id}]`);
+
+    socket.on("join", (room) => {
+      logging.info(`Join - IP: [${address}] - ID: [${room}]`);
+      socket.join(room);
+    });
+
+    socket.on("message", (msg) => {
+      logging.info(`Message - MSG: [${msg}] - IP: [${address}] - ID: [${id}]`);
+      socket.to(msg.room).emit("receive", msg);
+    });
+
+    socket.on("disconnect", () => {
+      logging.info(`Disconnected - IP: [${address}] - ID: [${id}]`);
+    });
+  });
 
   server.listen(config.server.port, () => logging.info(SERVER_RUNNING_MSG));
 };
 
 const createServer = () => {
+  router.use(cors());
   router.use(config.server.cookie);
   router.use(incomingMiddleware);
 
