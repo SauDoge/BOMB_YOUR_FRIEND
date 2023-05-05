@@ -3,26 +3,145 @@
 <html>
 
 <head>
-    <title>BOMB YOUR FRIENDS!</title>
-    <style>
+    <title>Bomb Your Friends!</title>
+	<meta charset="utf-8" />
+	<link rel="stylesheet" href="resources/css/bootstrap.css" type="text/css" />
+	<link href="https://fonts.googleapis.com/css?family=Baloo+Tamma" rel="stylesheet">
+	<link rel="stylesheet" href="resources/css/animate.css" type="text/css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+	<style>
 
+		h1 {
+			font-family: 'Baloo Tamma';
+			font-size: 50px;
+		}
 
-    </style>
-</head>
+		body {			
+			text-align: center;
+		}
 
-<body>
-
-    <div id="game_container">
-        <!-- Main Game Area-->
-        <canvas width="705px" height="600px"> </canvas>
-    </div>
+	</style>
 
     <!--Import scripts-->
     <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     <script src="scripts/bounding_box.js"></script>
     <script src="scripts/background.js"></script>
     <script src="scripts/sprite.js"></script>
     <script src="scripts/player.js"></script>
+</head>
+
+<body>
+	<img src="resources/sprites/bomberman-icon.png" style="width: 200px; padding-top: 30px;" class="bounceIn animated" />
+	<h1 class="fadeIn animated">Bomb Your Friends</h1>
+	<h3 class="fadeIn animated" style="margin-top: -15px;">COMP4021 Project by Arnold, Patrick, and Joaquin</h3><br /><br />
+
+	<div class="container">
+
+		<div class="well flipInX animated">
+            <div class="row">
+				<div class="col-sm-4">
+                    <strong>Based on the popular retro game "Bomberman", experience this classic party game right in your web browser!</strong>
+                    </br></br>
+                    <h3 class="media-heading"><i class="bi bi-chevron-left"></i><strong>INSTRUCTIONS</strong><i class="bi bi-chevron-right"></i></h3>
+                    </br>
+                    <h4 class="media-heading">Objective <i class="bi bi-bullseye"></i> </h4> 
+                    Place bombs to blow up blocks and your enemies! Grab powerups to become stronger.
+                    </br></br>
+                    <h4 class="media-heading">Controls <i class="bi bi-controller"></i></h4>
+                    Press <strong>WASD</strong> keys to move, press <strong>Spacebar</strong> to place a bomb.
+                    </br></br>
+                    <h4 class="media-heading">Score and Ranking <i class="bi bi-trophy-fill"></i></h4>
+                    Every match lasts 2 minutes. Defeat your enemy quickly to earn more points and rank high! 
+                    </br></br>
+                </div>
+                <div class="col-sm-4" style="display:none">
+                    <a href="build/index.htm" class="btn btn-primary"><i class="bi bi-dpad-fill"></i> Join Room</a> <hr />
+                    <a href="build/index.htm" class="btn btn-primary"><i class="bi bi-dpad-fill"></i> Start Room</a> <hr />
+
+                </div>
+                <div class="col-sm-4" id="signin-register">
+                    <!-- Tabs -->
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a data-toggle="tab" href="#signin">Sign In</a></li>
+                        <li><a data-toggle="tab" href="#register">Register</a></li>
+                    </ul>
+                </br>
+                    <!-- Tab content -->
+                    <div class="tab-content">
+
+                        <!-- Sign In Form -->
+                        <div id="signin" class="tab-pane fade in active">
+                        <div class="row">
+                            <div class="col-md-12">
+                            <h3 class="media-heading"><strong>SIGN IN</strong> </h3>
+                            <form>
+                                <div class="form-group">
+                                <label for="username">Username:</label>
+                                <input type="text" class="form-control" id="username">
+                                </div>
+                                <div class="form-group">
+                                <label for="password">Password:</label>
+                                <input type="password" class="form-control" id="password">
+                                </div>
+                                <button type="submit" class="btn btn-default">Submit</button>
+                            </form>
+                            </br></br>
+                            <h5 class="media-heading">Register if you do not have an account!</h4>
+                        </div>
+                        </div>
+                        </div>
+
+                        <!-- Register Form -->
+                        <div id="register" class="tab-pane fade">
+                            <div class="row">
+                                <div class="col-md-12">
+                                <h3 class="media-heading"><strong>REGISTER</strong> </h3>
+                                <form>
+                                    <div class="form-group">
+                                    <label for="username">Username:</label>
+                                    <input type="text" class="form-control" id="username">
+                                    </div>
+                                    <div class="form-group">
+                                    <label for="password">Password:</label>
+                                    <input type="password" class="form-control" id="password">
+                                    </div>
+                                    <div class="form-group">
+                                    <label for="password">Confirm Password:</label>
+                                    <input type="password" class="form-control" id="confirm-password">
+                                    </div>
+                                    <button type="submit" class="btn btn-default">Register</button>
+                                </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4" style="min-height: 40vh;" id="rooms">
+                        <ul class="list-group" style="min-height: 40vh;">
+                          <li class="list-group-item">Room 1<button type="button" class="btn btn-default btn-sm pull-right">Join</button></li>
+                          <li class="list-group-item">Room 2<button type="button" class="btn btn-default btn-sm pull-right">Join</button></li>
+                          <li class="list-group-item">Room 3<button type="button" class="btn btn-default btn-sm pull-right">Join</button></li>
+                          <li class="list-group-item">
+                            <form>
+                              <div class="form-group">
+                                <input type="text" class="form-control" placeholder="Enter room name">
+                              </div>
+                              <button type="submit" class="btn btn-primary btn-sm">Create</button>
+                            </form>
+                          </li>
+                        </ul>
+                </div>
+
+            </div>
+		</div>
+	</div>
+    <div id="game_container" style='display: none'>
+        <!-- Main Game Area-->
+        <canvas width="705px" height="600px"> </canvas>
+    </div>
+
+
 
     <!--Main Script To run the game-->
     <script>
@@ -33,6 +152,7 @@
             // define the gameArea 
             const gameArea = BoundingBox(context, 165, 60, 200, 235);
             corners = gameArea.getPoints();
+ 
 
             // create a Background instance
             // draw the instance
@@ -40,7 +160,10 @@
             const type_of_background = 0;
             const background = Background(context, 352, 300, type_of_background);
             background.draw();
-
+            context.beginPath();
+            context.moveTo(165, 60);
+            context.lineTo(300, 150);
+            context.stroke();
             // Set Boundaries 
             // sqaure grid width = 18px; 
             grid_width = 18;
