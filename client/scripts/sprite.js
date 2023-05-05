@@ -41,6 +41,7 @@ const Sprite = function(ctx, x, y) {
 
     // This function returns the readiness of the sprite sheet image.
     const isReady = function() {
+
         return sheet.complete && sheet.naturalHeight != 0;
     };
 
@@ -137,10 +138,13 @@ const Sprite = function(ctx, x, y) {
 
         /* TODO */
         /* Replace the following code to draw the sprite correctly */
-
+        ctx.clearRect(parseInt(x - size.width / 2), parseInt(y - size.height / 2), 
+                               size.width, size.height);
         ctx.imageSmoothingEnabled = false;
-        ctx.drawImage(sheet, sequence.x + index * sequence.width, sequence.y, sequence.width, sequence.height, 
-            parseInt(x - size.width / 2), parseInt(y - size.height / 2), size.width, size.height);
+        ctx.drawImage(sheet, sequence.x + index * sequence.width, 
+            sequence.y, sequence.width, sequence.height, 
+            parseInt(x - size.width / 2), parseInt(y - size.height / 2), 
+            size.width, size.height);
             
         
         /*
@@ -156,10 +160,14 @@ const Sprite = function(ctx, x, y) {
      
     // This function draws the shadow and the sprite.
     const draw = function() {
-        if (isReady()) {
-            drawShadow();
-            drawSprite();
-        }
+         sheet.onload = function() {
+
+                // At this point, the image is fully loaded
+                drawShadow();
+                drawSprite();
+
+
+            }
         return this;
     };
 
@@ -177,16 +185,15 @@ const Sprite = function(ctx, x, y) {
         // if loop = false and index == count - 1 -> index unchanged
 
         if (time - lastUpdate >= sequence.timing){
-            if (sequence.loop && index == sequence.count - 1){
-                index = 0; 
+            index++;
+
+            if (index >= sequence.count) {
+                if (sequence.loop)
+                    index = 0;
+                else
+                    index--;
             }
-            else if (!(sequence.loop) && index == sequence.count - 1){
-                // do nothing
-            }
-            else{
-                index++;
-            }
-            drawSprite();  
+
             lastUpdate = time;
 
         }
