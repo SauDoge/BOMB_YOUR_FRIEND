@@ -21,7 +21,7 @@ const Background = function(ctx, x, y, index){
     
     // Configure the background here
     sprite.setSequence(sequences[index])
-    .setScale(3)
+    .setScale(3.5)
     .setShadowScale({ x: 0, y: 0 })
     .useSheet("resources/sprites/Backgrounds.png");
 

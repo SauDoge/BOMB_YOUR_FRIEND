@@ -32,6 +32,22 @@ html {
     border-width: 1em;
     box-shadow: #101112;
   }
+
+  #side, #main {
+    display: inline-block;
+    float: left;
+    height: 90vh;
+    padding-right: 10px;
+    margin-left: 10px;
+    margin-top: 10px;
+
+
+  }
+  
+  #side {
+    width: 20vw;
+  }
+
   @font-face {
       font-family: 'Digital-7Mono';
       src: url('../fonts/Digital-7Mono.eot');
