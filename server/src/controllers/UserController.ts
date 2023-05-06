@@ -86,7 +86,7 @@ const login = (req: Request, res: Response, next: NextFunction) => {
       }
 
       logging.error(INCORRECT_CREDENTIAL);
-      return res.status(401).json({ INCORRECT_CREDENTIAL });
+      return res.status(401).json({ msg: INCORRECT_CREDENTIAL });
     });
   });
 };
