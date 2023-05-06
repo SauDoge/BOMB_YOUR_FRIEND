@@ -31,6 +31,11 @@
     <script src="scripts/ui.js"></script>
     <script src="scripts/registration.js"></script>
     <script src="scripts/player.js"></script>
+    <script src="scripts/bomb.js"></script>
+    <script src="scripts/power_up.js"></script>
+    <script src="scripts/destructable.js"></script>
+
+
     <body>
         <div id="content">
             <div id="gameover" style="display:none;">              
@@ -90,9 +95,7 @@
             <div id="container">
                 <div id="side">
     
-                    <div id="countdown" class="well well-sm">
-                        <div>2:00</div>
-                    </div>
+                    <div id="countdown" class="well well-sm">2:00</div>
     
                     <div id="info" class="well well-sm">
                         <h3 class="media-heading">Powerups</h3> </br>
@@ -108,15 +111,14 @@
     
                 </div>
                 <div id="main">
-                    <div class="well well-sm">
-                        <div id="game-container" style="position: relative; ">
+                        <div id="game-container" style=" position: relative; ">
                             <!-- Main Game Area-->
-                            <canvas width="850px" height="700px"> </canvas>
-                        </div>
-
-
-                        
-                    </div>
+                            <canvas id="background" width="850px" height="700px"
+                            style="background: #1c1e22; border: 1px solid #0c0d0e; padding: 10px 0;
+                            border-radius: 4px; position: absolute; left: 0px; top: 0px; z-index: 0;"> </canvas>
+                            <canvas id="entities" width="850px" height="700px"
+                            style="padding: 10px 0; position: absolute; left: 0px; top: 0px; z-index: 1;"> </canvas>
+                        </div>   
                 </div>
             </div>
         </div>
@@ -125,24 +127,53 @@
         <!--Main Script To run the game-->
         <script>
             $(document).ready(function () {
+                
+                // HELPER FUNCTIONS
+                
+                // Seconds to minutes formatting
+                function fmtMSS(s){return(s-(s%=60))/60+(9<s?':':':0')+s}
+                
+                // Transform grid number into x-coordinates for drawing on canvas (0 to 10)
+                function toX(col) {
+                    // 108, 94 is coordinates of upper left playable corner, add 63 to either to get to adjacent square
+                    if (col > 10) col = 10
+                    return 108 + col * 63
+                }
 
-                const cv = $("canvas").get(0);
-                const context = cv.getContext("2d");
+                // Transform grid number into y-coordinates for drawing on canvas (0 to 8)
+                function toY(row) {
+                    if (row > 8) row = 8
+                    return 94 + row * 63
+                }
+                
+                // Create two canvases, one for background, one for entities
+                const bg_cv = $("#background");
+                const bg_context = bg_cv[0].getContext("2d");
+                const cv = $("#entities");
+                const context = cv[0].getContext("2d");
 
                 // define the gameArea 
-                const gameArea = BoundingBox(context, 165, 60, 200, 235);
+                const gameArea = BoundingBox(context, toY(0), toX(0), toY(8), toX(10));
                 corners = gameArea.getPoints();
-        
 
                 // create a Background instance
                 // draw the instance
                 // x, y are the center of the canvas
                 const type_of_background = 0;
-                const background = Background(context, 425, 350, type_of_background);
+                const background = Background(bg_context, 425, 350, type_of_background);
                 background.draw();
-       
+               
+                // Initialise sounds
+                const sounds = {
+                    background: new Audio("resources/sounds/bomberman.ogg"),
+                    bomb: new Audio("resources/sounds/bomb.wav"),
+                    explosion: new Audio("resources/sounds/explosion.wav"),
+                    item: new Audio("resources/sounds/item.wav")
+
+                };
+
                 // Set Boundaries 
-                // sqaure grid width = 18px; 
+                // Square grid width = 18px; 
                 grid_width = 18;
                 num_rows = 11
                 num_cols = 13
@@ -169,12 +200,123 @@
                             }
                         }
                     }
-
-
-
-
-
                 }
+                console.log(corners)
+
+                const totalGameTime = 120;   // Total game time in seconds
+                let gameStartTime = 0;      // The timestamp when the game starts
+
+                /* Create the sprites in the game */
+                let bombs = [Bomb(context, 108, 157, "bomb")]; // The bomb
+                const players = [ 
+                    Player(context, toX(0), toY(0), gameArea, 2), 
+                    Player(context, toX(10), toY(8), gameArea, 1)
+                ]; // The players
+                const powerup = Powerup(context, 234, 94, "fire"); // The powerup
+                const destructable = Destructable(context, 108, 94, "destroyed_brick"); // The powerup
+
+                /* The main processing of the game */
+                function doFrame(now) {
+                    if (gameStartTime == 0) gameStartTime = now;
+
+                    /* Update the time remaining */
+                    const gameTimeSoFar = now - gameStartTime;
+                    const timeRemaining = Math.ceil((totalGameTime * 1000 - gameTimeSoFar) / 1000);
+                    $("#countdown").text(fmtMSS(timeRemaining));
+
+
+                    /* Handle the game over situation here */
+                    if (timeRemaining <= 0) {
+                        sounds.background.pause();
+                        $("#container").hide();
+                        $("#gameover").show();
+                        return;
+                    }
+
+                    /* Update the sprites */
+                    bombs.forEach((bomb) => bomb.update(now));
+                    players.forEach((player) => player.update(now));
+                    powerup.update(now);
+
+                    /* Randomize the gem and collect the gem here */
+                    // if (gem.getAge(now) >= gemMaxAge)
+                    //     gem.randomize(gameArea);
+                    // if (player.getBoundingBox().isPointInBox(gem.getXY().x, gem.getXY().y)) {
+                    //     sounds.collect.currentTime = 0;
+                    //     sounds.collect.play();
+                    //     collectedGems++;
+                    //     gem.randomize(gameArea);
+                    // }
+
+                    /* Clear the screen */
+                    context.clearRect(0, 0, cv.width, cv.height);
+
+                    /* Draw the sprites */
+
+                    bombs.forEach((bomb) => bomb.draw());
+                    players.forEach((player) => player.draw());
+                    powerup.draw();
+                    /* Process the next frame */
+                    requestAnimationFrame(doFrame);
+                }
+
+                    /* Play background audio */
+                    //sounds.background.play();
+
+                    /* Randomize gem location */
+                    // gem.randomize(gameArea);
+
+                    /* Handle the keydown of arrow keys and spacebar */
+                    $(document).on("keydown", function(event) {
+
+                        /* Handle the key down */
+                        switch(event.keyCode) {
+                            case 37:
+                                players[0].move(1);
+                                break;
+                            case 38:
+                                players[0].move(2);
+                                break;
+                            case 39:
+                                players[0].move(3);
+                                break;
+                            case 40:
+                                players[0].move(4);
+                                break;
+                            case 32:
+                                players[0].speedUp();
+                                break;
+                        }
+
+                    });
+
+                    /* Handle the keyup of arrow keys and spacebar */
+                    $(document).on("keyup", function(event) {
+
+                        /* Handle the key up */
+                        switch(event.keyCode) {
+                            case 37:
+                                players[0].stop(1);
+                                break;
+                            case 38:
+                                players[0].stop(2);
+                                break;
+                            case 39:
+                                players[0].stop(3);
+                                break;
+                            case 40:
+                                players[0].stop(4);
+                                break;
+                            case 32:
+                                players[0].slowDown();
+                                break;
+                        }
+
+                    });
+                
+                /* Start the game */
+                
+                requestAnimationFrame(doFrame);
             });
         </script>
     

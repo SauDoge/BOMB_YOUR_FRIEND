@@ -159,11 +159,26 @@ const Sprite = function(ctx, x, y) {
     };
      
     // This function draws the shadow and the sprite.
-    const draw = function() {
+    const draw_bg = function() {
+
          sheet.onload = function() {
 
                 // At this point, the image is fully loaded
-                drawShadow();
+
+                drawSprite();
+
+
+            }
+        return this;
+    };
+        
+    // This function draws the shadow and the sprite.
+    const draw = function() {
+
+        if (isReady()) {
+
+                // At this point, the image is fully loaded
+
                 drawSprite();
 
 
@@ -186,7 +201,6 @@ const Sprite = function(ctx, x, y) {
 
         if (time - lastUpdate >= sequence.timing){
             index++;
-
             if (index >= sequence.count) {
                 if (sequence.loop)
                     index = 0;
@@ -213,6 +227,7 @@ const Sprite = function(ctx, x, y) {
         getBoundingBox: getBoundingBox,
         isReady: isReady,
         draw: draw,
+        draw_bg: draw_bg,
         update: update
     };
 };

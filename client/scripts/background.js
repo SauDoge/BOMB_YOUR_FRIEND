@@ -6,7 +6,7 @@
 const Background = function(ctx, x, y, index){
     
     const sequences = {
-        // width = 234; height: 198; padding_x: 15; padding_y: 20
+        // width = 234; height: 198; padding_x: 16; padding_y: 22
         0: {x: 0, y: 0, width: 234 , height: 198, loop:false},
         1: {x: 250, y: 0, width: 234 , height: 198, loop:false},
         2: {x: 0, y: 220, width: 234 , height: 198, loop:false},
@@ -32,7 +32,7 @@ const Background = function(ctx, x, y, index){
 
     return{
         getBoundingBox: sprite.getBoundingBox,
-        draw: sprite.draw,
+        draw: sprite.draw_bg,
         getXY: sprite.getXY,
         setXY: sprite.setXY,
         setBackground: setBackground,
