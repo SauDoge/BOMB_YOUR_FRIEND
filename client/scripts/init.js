@@ -17,7 +17,7 @@ const Form = (() => {
 
             const username = $('#register-username').val().trim();
             const password = $('#register-password').val().trim();
-            const confrimPassword = $('#confirm-password').val().trim();
+            const confrimPassword = $('#register-confirm').val().trim();
 
             if (password !== confrimPassword) {
                 $('#register-message').text("Passwords do not match");
