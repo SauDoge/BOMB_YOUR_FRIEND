@@ -23,7 +23,8 @@ declare module "express-session" {
 const configSession = session({
   secret: SESSION_SECRET,
   resave: false,
-  saveUninitialized: true,
+  name: 'bomb',
+  saveUninitialized: false,
   cookie: {
     secure: false,
     maxAge: SESSION_EXPIRATION,
