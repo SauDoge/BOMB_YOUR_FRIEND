@@ -3,16 +3,9 @@ import { getUsername } from "../utils/helper";
 
 const socket = io.connect('http://localhost:3000');
 
-let client = 0;
-
 socket.on("connect", () => {
     console.log(`${getUsername()} logged in room ${localStorage.getItem("room")}`);
     socket.emit("join", localStorage.getItem("room"));
-})
-
-socket.on("disconnect", () => {
-    console.log(`${getUsername()} logged out room ${localStorage.getItem("room")}`);
-    client--;
 })
 
 $(document).ready(function () {
@@ -23,6 +16,7 @@ $(document).ready(function () {
     const sendMessage = (move, direction) => {
         socket.emit("message", { index, room, move, direction });
     }
+
 
     // HELPER FUNCTIONS
 
@@ -66,7 +60,7 @@ $(document).ready(function () {
     function initializeEntities(d, p, context, destructables, powerups, destructable_type) {
         /** Randomize destructable and powerup locations, d = number of destructables, p = number of powerups **/
         // Shuffle array
-        const shuffled = destructableSpace.sort(() => 0.5 - 0.7);
+        const shuffled = destructableSpace.sort(() => 0.5 - Math.random());
 
         // Get sub-array of first n elements after shuffled
         let selected = shuffled.slice(0, d);
@@ -87,73 +81,130 @@ $(document).ready(function () {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    function createExplosion(context, power, obstacles, col, row) {
+    const includesArray = (data, arr) => {
+        return data.some(e => Array.isArray(e) && e.every((o, i) => Object.is(arr[i], o)));
+    }
+
+    function createBomb(context, bomb_context, bombs, bomb_number, explosions_arr, pos, power, obstacles) {
+        if (bombs.length < bomb_number) {
+            bombs.push(Bomb(bomb_context, toX(pos[0]), toY(pos[1])));
+            setTimeout(function () { const pos_arr = createExplosion(context, explosions, power, obstacles, pos[0], pos[1]); }, 2000);
+            //explosions = explosions.filter( (e) => !explosion.includes(e));
+        }
+    }
+
+    function createExplosion(context, e, power, obstacles, col, row) {
         /** Create explosions **/
-        console.log(nonDestructableSpace)
-        explosions = []
-        explosions.push(Explosion(context, toX(col), toY(row), "center"));
-        for (var i = col; i < col + power; i++) {
+        // Create array of explosion positions to return to delete explosions
+        let positions = []
+        positions.push([col, row])
+        e.push(Explosion(context, toX(col), toY(row), "center"));
+
+        for (var i = col + 1; i < col + power; i++) {
             if (i > 10)
                 break;
-            if (nonDestructableSpace.includes([i, row]))
+
+            if (includesArray(nonDestructableSpace, [i, row]))
                 break;
+
+            let broke = false
+
             for (const d of destructables) {
-                if (d.getXY()[0] == toX(i) && d.getXY()[1] == toY(row)) {
-                    console.log("HIIII")
+                if (d.getXY().x == toX(i) && d.getXY().y == toY(row)) {
                     d.destroy_animation();
-                    break;
+                    broke = true;
                 }
             }
-            if (i == col + power - 1)
-                explosions.push(Explosion(context, toX(i), toY(row), "right"));
-            else
-                explosions.push(Explosion(context, toX(i), toY(row), "h_mid"));
-        }
-        // for (var i = col; i < col + power; i++) {
+            if (broke == true) break;
 
-        //     if (nonDestructableSpace.includes([row, i]))
-        //         break;
-        //     for (d of destructables) {
-        //         if (d.getXY()[0] == toX(row) && d.getXY()[1] == toX(i))
-        //             d.destroy();
-        //         break;
-        //     }
-        //     if (i == col + power - 1)
-        //         explosions.push(Explosion(context, toX(i), toY(col), "right"));
-        //     else
-        //         explosions.push(Explosion(context, toX(i), toY(col), "h_mid"));
-        // }
-        // for (var i = row - power + 1; i < row; i++) {
-        //     if (i < 0 || i > 10)
-        //         continue;
-        //     if (nonDestructableSpace.includes([i, col]))
-        //         break;
-        //     for (d of destructables) {
-        //         if (d.getXY()[0] == toX(i) && d.getXY()[1] == toX(col))
-        //             d.destroy();
-        //         break;
-        //     }
-        //     if (i == row - power + 1)
-        //         explosions.push(Explosion(context, toX(i), toY(col), "down"));
-        //     else
-        //         explosions.push(Explosion(context, toX(i), toY(col), "v_mid"));
-        // }
-        // for (var i = col - power + 1; i < col; i++) {
-        //     if (i < 0 || i > 8)
-        //         continue;
-        //     if (nonDestructableSpace.includes([row, i]))
-        //         break;
-        //     for (d of destructables) {
-        //         if (d.getXY()[0] == toX(row) && d.getXY()[1] == toX(i))
-        //             d.destroy();
-        //         break;
-        //     }
-        //     if (i == col - power + 1)
-        //         explosions.push(Explosion(context, toX(i), toY(col), "left"));
-        //     else
-        //         explosions.push(Explosion(context, toX(i), toY(col), "h_mid"));
-        // }
-        return explosions;
+            if (i == col + power - 1) {
+                e.push(Explosion(context, toX(i), toY(row), "right"));
+                positions.push([i, row])
+            }
+            else {
+                e.push(Explosion(context, toX(i), toY(row), "h_mid"));
+                positions.push([i, row])
+            }
+        }
+        for (var i = col - 1; i > col - power; i--) {
+            if (i < 0)
+                break;
+
+            if (includesArray(nonDestructableSpace, [i, row]))
+                break;
+
+            let broke = false
+
+            for (const d of destructables) {
+                if (d.getXY().x == toX(i) && d.getXY().y == toY(row)) {
+                    d.destroy_animation();
+                    broke = true;
+                }
+            }
+            if (broke == true) break;
+
+            if (i == col - power + 1) {
+                e.push(Explosion(context, toX(i), toY(row), "left"));
+                positions.push([i, row])
+            }
+            else {
+                e.push(Explosion(context, toX(i), toY(row), "h_mid"));
+                positions.push([i, row])
+            }
+        }
+
+        for (var i = row + 1; i < row + power; i++) {
+            if (i > 10)
+                break;
+
+            if (includesArray(nonDestructableSpace, [col, i]))
+                break;
+
+            let broke = false
+
+            for (const d of destructables) {
+                if (d.getXY().x == toX(col) && d.getXY().y == toY(i)) {
+                    d.destroy_animation();
+                    broke = true;
+                }
+            }
+            if (broke == true) break;
+
+            if (i == row + power - 1) {
+                e.push(Explosion(context, toX(col), toY(i), "down"));
+                positions.push([col, i])
+            }
+            else {
+                e.push(Explosion(context, toX(col), toY(i), "v_mid"));
+                positions.push([col, i])
+            }
+        }
+        for (var i = row - 1; i > row - power; i--) {
+            if (i < 0)
+                break;
+
+            if (includesArray(nonDestructableSpace, [col, i]))
+                break;
+
+            let broke = false
+
+            for (const d of destructables) {
+                if (d.getXY().x == toX(col) && d.getXY().y == toY(i)) {
+                    d.destroy_animation();
+                    broke = true;
+                }
+            }
+            if (broke == true) break;
+
+            if (i == row - power + 1) {
+                e.push(Explosion(context, toX(col), toY(i), "up"));
+                positions.push([col, i])
+            }
+            else {
+                e.push(Explosion(context, toX(col), toY(i), "v_mid"));
+                positions.push([col, i])
+            }
+        }
     }
 
 
@@ -190,8 +241,8 @@ $(document).ready(function () {
     let entities = powerups.concat(explosions);
 
     const players = [
-        Player(context, toX(0), toY(0), gameArea, 2, obstacles, entities),
-        Player(context, toX(10), toY(8), gameArea, 1, obstacles, entities)
+        Player(context, toX(0), toY(0), gameArea, 2, entities),
+        Player(context, toX(10), toY(8), gameArea, 1, entities)
     ];
 
     // Initialise sounds
@@ -269,7 +320,7 @@ $(document).ready(function () {
 
 
         /* Update the sprites */
-        players.forEach((player) => player.update(now));
+        players.forEach((player) => player.update(now, obstacles));
         bombs_1.forEach((bomb) => bomb.update(now));
         bombs_2.forEach((bomb) => bomb.update(now));
         powerups.forEach((powerup) => powerup.update(now));
@@ -279,6 +330,7 @@ $(document).ready(function () {
 
         /* Clear the screen */
         context.clearRect(0, 0, cv[0].width, cv[0].height);
+        bomb_context.clearRect(0, 0, cv[0].width, cv[0].height);
 
         /* Draw the sprites */
         players.forEach((player) => player.draw());
@@ -297,7 +349,7 @@ $(document).ready(function () {
 
     /* Handle the keydown of arrow keys and spacebar */
     $(document).on("keydown", function (event) {
-        console.log(players[index].getSpeed())
+
         /* Handle the key down */
         switch (event.keyCode) {
             case 37:
@@ -317,16 +369,8 @@ $(document).ready(function () {
                 sendMessage(0, 4);
                 break;
             case 32:
-                const pos = players[index].getPosition();
-                if (bombs_1.length < players[index].getBombNumber()) {
-                    bombs_1.push(Bomb(bomb_context, toX(pos[0]), toY(pos[1])));
-                    sleep(800);
-                    const explosion = createExplosion(context, players[0].getPower(), obstacles, players[0].getPosition()[0], players[0].getPosition()[1])
-                    explosions.concat(explosion);
-                    console.log(explosions)
-                    sendMessage(2, -1)
-                    //explosions = explosions.filter( (e) => !explosion.includes(e));
-                }
+                createBomb(context, bomb_context, bombs_1, players[index].getBombNumber(), explosions, players[index].getPosition(), players[index].getPower(), obstacles);
+                sendMessage(2, -1)
                 break;
         }
 
@@ -366,13 +410,7 @@ $(document).ready(function () {
                 players[data.index].stop(data.direction);
                 break;
             default:
-                const pos = players[data.index].getPosition();
-                if (bombs_1.length < players[data.index].getBombNumber()) {
-                    bombs_1.push(Bomb(bomb_context, toX(pos[0]), toY(pos[1])));
-                    sleep(800);
-                    const explosion = createExplosion(context, players[data.index].getPower(), obstacles, players[data.index].getPosition()[0], players[data.index].getPosition()[1])
-                    explosions.concat(explosion);
-                }
+                createBomb(context, bomb_context, bombs_1, players[data.index].getBombNumber(), explosions, players[data.index].getPosition(), players[data.index].getPower(), obstacles);
         }
     })
 
