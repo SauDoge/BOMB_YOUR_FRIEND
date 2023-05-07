@@ -1,4 +1,5 @@
 import { io } from 'socket.io-client';
+import { getUsername } from '../utils/helper';
 
 const socket = io('http://localhost:3000');
 
@@ -6,8 +7,28 @@ socket.on('connect', () => {
     console.log('Connected to server');
 });
 
+socket.on('recieved', (data) => {
+    console.log(data.message);
+})
+
 $(document).ready(function () {
     Form.init();
+
+    $('.list-group-item button').click(function (e) {
+        const room = $(this).parent().text().trim().split("Join")[0].split(" ")[1];
+        localStorage.setItem('room',room);
+
+        const username = getUsername();
+
+        if(!username) {
+            $('#join-message').text("Please login");
+            return;
+        }
+        
+        console.log(`${getUsername()} connect to room ${room}`);
+        socket.emit("join", room)
+        window.location.href = "game.html";
+    })
 
     const cv = $("canvas").get(0);
     const context = cv.getContext("2d");

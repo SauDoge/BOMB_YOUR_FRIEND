@@ -7,6 +7,7 @@ const Form = (() => {
             const password = $('#signin-password').val().trim();
 
             Authentication.login(username, password, () => {
+                document.cookie = `user=${username}`
                 window.location.reload();
             }, (error) => $("#signin-message").text(error))
 
