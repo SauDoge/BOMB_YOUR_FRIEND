@@ -29,6 +29,10 @@ const start = () => {
     socket.on("join", (room) => {
       logging.info(`Join - IP: [${address}] - ID: [${room}]`);
       socket.join(room);
+      io.to(room).emit(
+        "clientConnected",
+        io.sockets.adapter.rooms.get(room)?.size
+      );
     });
 
     socket.on("message", (msg) => {

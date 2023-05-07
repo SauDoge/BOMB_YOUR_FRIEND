@@ -7,10 +7,6 @@ socket.on('connect', () => {
     console.log('Connected to server');
 });
 
-socket.on('recieved', (data) => {
-    console.log(data.message);
-})
-
 $(document).ready(function () {
     Form.init();
 
@@ -26,7 +22,6 @@ $(document).ready(function () {
         }
         
         console.log(`${getUsername()} connect to room ${room}`);
-        socket.emit("join", room)
         window.location.href = "game.html";
     })
 
