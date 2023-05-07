@@ -34,6 +34,8 @@
     <script src="scripts/bomb.js"></script>
     <script src="scripts/power_up.js"></script>
     <script src="scripts/destructable.js"></script>
+    <script src="scripts/non_destructable.js"></script>
+    <script src="scripts/explosion.js"></script>
 
 
     <body>
@@ -116,8 +118,10 @@
                             <canvas id="background" width="850px" height="700px"
                             style="background: #1c1e22; border: 1px solid #0c0d0e; padding: 10px 0;
                             border-radius: 4px; position: absolute; left: 0px; top: 0px; z-index: 0;"> </canvas>
-                            <canvas id="entities" width="850px" height="700px"
+                            <canvas id="entities_canvas" width="850px" height="700px"
                             style="padding: 10px 0; position: absolute; left: 0px; top: 0px; z-index: 1;"> </canvas>
+                            <canvas id="bomb_canvas" width="850px" height="700px"
+                            style="padding: 10px 0; position: absolute; left: 0px; top: 0px; z-index: 2;"> </canvas>
                         </div>   
                 </div>
             </div>
@@ -145,11 +149,128 @@
                     if (row > 8) row = 8
                     return 94 + row * 63
                 }
+
+                // Get playable and non playable grid spaces
+                const playable = [];
+                const destructableSpace = [];
+                const nonDestructableSpace = [];
+                let destructablesGrid = [];
+                for (var i = 0; i < 11; i++) {
+                    for (var j = 0; j < 9; j++) {
+                        if (i % 2 && j % 2) {
+                            nonDestructableSpace.push([i, j])
+                            continue;
+                        }
                 
-                // Create two canvases, one for background, one for entities
+                        // Can't have destructable in initial player square and adjacent squares
+                        if (i + j > 1 && i + j < 17)
+                            destructableSpace.push([i, j]);
+        
+                        playable.push([i, j]);
+                    }
+
+                }
+                
+                function initializeEntities(d, p, context, destructables, powerups, destructable_type) {
+                    /** Randomize destructable and powerup locations, d = number of destructables, p = number of powerups **/
+                    // Shuffle array
+                    const shuffled = destructableSpace.sort(() => 0.5 - Math.random());
+
+                    // Get sub-array of first n elements after shuffled
+                    let selected = shuffled.slice(0, d);
+                    let non_selected = shuffled.slice(d + 1, d + 1 + p);
+                    selected.forEach(space => {
+                        destructables.push(Destructable(context, toX(space[0]), toY(space[1]), destructable_type));
+                        destructablesGrid.push([space[0], space[1]]);
+                    });
+                    non_selected.forEach(space => powerups.push(Powerup(context, toX(space[0]), toY(space[1]), "random")))
+                }
+
+                function initializeNonDestructables(context, nonDestructables) {
+                    /** Initialize non-destructables **/
+                    nonDestructableSpace.forEach(space => nonDestructables.push(NonDestructable(context, toX(space[0]), toY(space[1]))))
+                }
+                
+                function sleep(ms) {
+                    return new Promise(resolve => setTimeout(resolve, ms));
+                }
+
+                function createExplosion(context, power, obstacles, col, row) {
+                    /** Create explosions **/
+                    console.log(nonDestructableSpace)
+                    explosions = []
+                    explosions.push(Explosion(context, toX(col), toY(row), "center"));
+                    for (var i = col; i < col + power; i++) {
+                        if (i > 10)
+                            break;
+                        if (nonDestructableSpace.includes([i, row]))
+                            break;
+                        for (d of destructables) {
+                            if (d.getXY()[0] == toX(i) && d.getXY()[1] == toY(row)) {
+                                console.log("HIIII")
+                                d.destroy_animation();
+                                break;
+                            }
+                        }
+                        if (i == col + power - 1)
+                            explosions.push(Explosion(context, toX(i), toY(row), "right"));
+                        else
+                            explosions.push(Explosion(context, toX(i), toY(row), "h_mid"));
+                    }
+                    // for (var i = col; i < col + power; i++) {
+                       
+                    //     if (nonDestructableSpace.includes([row, i]))
+                    //         break;
+                    //     for (d of destructables) {
+                    //         if (d.getXY()[0] == toX(row) && d.getXY()[1] == toX(i))
+                    //             d.destroy();
+                    //         break;
+                    //     }
+                    //     if (i == col + power - 1)
+                    //         explosions.push(Explosion(context, toX(i), toY(col), "right"));
+                    //     else
+                    //         explosions.push(Explosion(context, toX(i), toY(col), "h_mid"));
+                    // }
+                    // for (var i = row - power + 1; i < row; i++) {
+                    //     if (i < 0 || i > 10)
+                    //         continue;
+                    //     if (nonDestructableSpace.includes([i, col]))
+                    //         break;
+                    //     for (d of destructables) {
+                    //         if (d.getXY()[0] == toX(i) && d.getXY()[1] == toX(col))
+                    //             d.destroy();
+                    //         break;
+                    //     }
+                    //     if (i == row - power + 1)
+                    //         explosions.push(Explosion(context, toX(i), toY(col), "down"));
+                    //     else
+                    //         explosions.push(Explosion(context, toX(i), toY(col), "v_mid"));
+                    // }
+                    // for (var i = col - power + 1; i < col; i++) {
+                    //     if (i < 0 || i > 8)
+                    //         continue;
+                    //     if (nonDestructableSpace.includes([row, i]))
+                    //         break;
+                    //     for (d of destructables) {
+                    //         if (d.getXY()[0] == toX(row) && d.getXY()[1] == toX(i))
+                    //             d.destroy();
+                    //         break;
+                    //     }
+                    //     if (i == col - power + 1)
+                    //         explosions.push(Explosion(context, toX(i), toY(col), "left"));
+                    //     else
+                    //         explosions.push(Explosion(context, toX(i), toY(col), "h_mid"));
+                    // }
+                    return explosions;
+                }
+                
+                
+                // Create three canvases, one for background, one for entities, one for bombs
                 const bg_cv = $("#background");
                 const bg_context = bg_cv[0].getContext("2d");
-                const cv = $("#entities");
+                const bomb_cv = $("#bomb_canvas");
+                const bomb_context = bomb_cv[0].getContext("2d");
+                const cv = $("#entities_canvas");
                 const context = cv[0].getContext("2d");
 
                 // define the gameArea 
@@ -162,7 +283,25 @@
                 const type_of_background = 0;
                 const background = Background(bg_context, 425, 350, type_of_background);
                 background.draw();
-               
+
+                /* Create the sprites in the game */
+                let destructables = []
+                let powerups = []
+                let nonDestructables = []
+                let bombs_1 = []; 
+                let bombs_2 = []; 
+                let explosions = [];
+                
+                initializeEntities(10, 30, context, destructables, powerups, "idle_brick")
+                initializeNonDestructables(context, nonDestructables);
+                let obstacles = nonDestructables.concat(destructables)
+                let entities = powerups.concat(explosions);
+
+                const players = [ 
+                    Player(context, toX(0), toY(0), gameArea, 2, obstacles, entities), 
+                    Player(context, toX(10), toY(8), gameArea, 1, obstacles, entities)
+                ]; 
+
                 // Initialise sounds
                 const sounds = {
                     background: new Audio("resources/sounds/bomberman.ogg"),
@@ -172,48 +311,42 @@
 
                 };
 
+                sounds.background.volume = 0.3
+
                 // Set Boundaries 
                 // Square grid width = 18px; 
-                grid_width = 18;
-                num_rows = 11
-                num_cols = 13
-                const boundaries = [];
-                for (var j = 0; j < num_rows; j++) {
-                    if (j == 0 || j == num_rows - 1) {
-                        for (var i = 0; i < num_cols; i++) {
-                            {
-                                boundaries.push(BoundingBox(context, grid_width * i, grid_width * j, grid_width * (i + 1), grid_width * (j + 1)));
-                            }
-                        }
-                    }
-                    else if (j % 2 == 1) {
-                        boundaries.push(BoundingBox(context, grid_width * 0, grid_width * j, grid_width * 1, grid_width * (j + 1)));
-                        boundaries.push(BoundingBox(context, grid_width * (num_cols - 1), grid_width * j, grid_width * num_cols, grid_width * (j + 1)));
-                    }
-                    else if (j % 2 == 0) {
-                        // get every even i
-                        for (var i = 0; i < num_cols; i++) {
-                            {
-                                if (i % 2 == 0) {
-                                    boundaries.push(BoundingBox(context, grid_width * i, grid_width * j, grid_width * (i + 1), grid_width * (j + 1)));
-                                }
-                            }
-                        }
-                    }
-                }
-                console.log(corners)
+                // grid_width = 18;
+                // num_rows = 11
+                // num_cols = 13
+                // const boundaries = [];
+                // for (var j = 0; j < num_rows; j++) {
+                //     if (j == 0 || j == num_rows - 1) {
+                //         for (var i = 0; i < num_cols; i++) {
+                //             {
+                //                 boundaries.push(BoundingBox(context, grid_width * i, grid_width * j, grid_width * (i + 1), grid_width * (j + 1)));
+                //             }
+                //         }
+                //     }
+                //     else if (j % 2 == 1) {
+                //         boundaries.push(BoundingBox(context, grid_width * 0, grid_width * j, grid_width * 1, grid_width * (j + 1)));
+                //         boundaries.push(BoundingBox(context, grid_width * (num_cols - 1), grid_width * j, grid_width * num_cols, grid_width * (j + 1)));
+                //     }
+                //     else if (j % 2 == 0) {
+                //         // get every even i
+                //         for (var i = 0; i < num_cols; i++) {
+                //             {
+                //                 if (i % 2 == 0) {
+                //                     boundaries.push(BoundingBox(context, grid_width * i, grid_width * j, grid_width * (i + 1), grid_width * (j + 1)));
+                //                 }
+                //             }
+                //         }
+                //     }
+                // }
 
                 const totalGameTime = 120;   // Total game time in seconds
                 let gameStartTime = 0;      // The timestamp when the game starts
 
-                /* Create the sprites in the game */
-                let bombs = [Bomb(context, 108, 157, "bomb")]; // The bomb
-                const players = [ 
-                    Player(context, toX(0), toY(0), gameArea, 2), 
-                    Player(context, toX(10), toY(8), gameArea, 1)
-                ]; // The players
-                const powerup = Powerup(context, 234, 94, "fire"); // The powerup
-                const destructable = Destructable(context, 108, 94, "destroyed_brick"); // The powerup
+
 
                 /* The main processing of the game */
                 function doFrame(now) {
@@ -224,47 +357,54 @@
                     const timeRemaining = Math.ceil((totalGameTime * 1000 - gameTimeSoFar) / 1000);
                     $("#countdown").text(fmtMSS(timeRemaining));
 
-
                     /* Handle the game over situation here */
-                    if (timeRemaining <= 0) {
+                    if (timeRemaining <= 0 || !players[0].getAlive() || !players[1].getAlive()) {
                         sounds.background.pause();
                         $("#container").hide();
                         $("#gameover").show();
                         return;
                     }
 
-                    /* Update the sprites */
-                    bombs.forEach((bomb) => bomb.update(now));
-                    players.forEach((player) => player.update(now));
-                    powerup.update(now);
+                    /* Update the entities */
+                    destructables.forEach((destructable) => {
+                        if (destructable.getDestroyed()) {destructables = destructables.filter(d => d !== destructable)}
+                    })
+                    powerups.forEach((powerup) => {
+                        if (powerup.getUsed()) {powerups = powerups.filter(p => p !== powerup)}
+                    })
+                    obstacles = destructables.concat(nonDestructables)
+                    entities = powerups.concat(explosions)
+ 
 
-                    /* Randomize the gem and collect the gem here */
-                    // if (gem.getAge(now) >= gemMaxAge)
-                    //     gem.randomize(gameArea);
-                    // if (player.getBoundingBox().isPointInBox(gem.getXY().x, gem.getXY().y)) {
-                    //     sounds.collect.currentTime = 0;
-                    //     sounds.collect.play();
-                    //     collectedGems++;
-                    //     gem.randomize(gameArea);
-                    // }
+                    /* Update the sprites */
+                    players.forEach((player) => player.update(now));
+                    bombs_1.forEach((bomb) => bomb.update(now));
+                    bombs_2.forEach((bomb) => bomb.update(now));
+                    powerups.forEach((powerup) => powerup.update(now));
+                    destructables.forEach(destructable => destructable.update(now));
+                    nonDestructables.forEach(nonDestructable => nonDestructable.update(now));
+                    explosions.forEach((explosion) => explosion.update(now));
 
                     /* Clear the screen */
-                    context.clearRect(0, 0, cv.width, cv.height);
+                    context.clearRect(0, 0, cv[0].width, cv[0].height);
 
                     /* Draw the sprites */
-
-                    bombs.forEach((bomb) => bomb.draw());
                     players.forEach((player) => player.draw());
-                    powerup.draw();
+                    bombs_1.forEach((bomb) => bomb.draw());
+                    bombs_2.forEach((bomb) => bomb.draw());
+                    powerups.forEach((powerup) => powerup.draw());
+                    destructables.forEach(destructable => destructable.draw());
+                    nonDestructables.forEach(nonDestructable => nonDestructable.draw());
+                    explosions.forEach((explosion) => explosion.draw());
+
                     /* Process the next frame */
                     requestAnimationFrame(doFrame);
                 }
 
                     /* Play background audio */
-                    //sounds.background.play();
+                    sounds.background.play();
 
-                    /* Randomize gem location */
-                    // gem.randomize(gameArea);
+
 
                     /* Handle the keydown of arrow keys and spacebar */
                     $(document).on("keydown", function(event) {
@@ -284,7 +424,15 @@
                                 players[0].move(4);
                                 break;
                             case 32:
-                                players[0].speedUp();
+                                pos = players[0].getPosition();
+                                if (bombs_1.length < players[0].getBombNumber()) { 
+                                    bombs_1.push(Bomb(bomb_context, toX(pos[0]), toY(pos[1])));
+                                    sleep(800);
+                                    explosion = createExplosion(context, players[0].getPower(), obstacles, players[0].getPosition()[0], players[0].getPosition()[1])
+                                    explosions.concat(explosion);
+                                    console.log(explosions)
+                                    //explosions = explosions.filter( (e) => !explosion.includes(e));
+                                }
                                 break;
                         }
 
@@ -306,9 +454,6 @@
                                 break;
                             case 40:
                                 players[0].stop(4);
-                                break;
-                            case 32:
-                                players[0].slowDown();
                                 break;
                         }
 

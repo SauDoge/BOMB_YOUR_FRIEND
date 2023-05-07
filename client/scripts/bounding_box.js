@@ -55,6 +55,7 @@ const BoundingBox = function(ctx, top, left, bottom, right) {
     const intersect = function(box) {
         /* Check the points of the other box */
         let points = box.getPoints();
+
         for (const key in points) {
             if (isPointInBox(...points[key]))
                 return true;

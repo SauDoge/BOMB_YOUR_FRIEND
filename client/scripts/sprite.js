@@ -178,7 +178,7 @@ const Sprite = function(ctx, x, y) {
         if (isReady()) {
 
                 // At this point, the image is fully loaded
-
+                drawShadow();
                 drawSprite();
 
 
@@ -215,6 +215,16 @@ const Sprite = function(ctx, x, y) {
         return this;
     };
 
+    const remove = function() {
+        /* Get the display size of the sprite */
+        const size = getDisplaySize();
+
+        /* TODO */
+        /* Replace the following code to draw the sprite correctly */
+        ctx.clearRect(parseInt(x - size.width / 2), parseInt(y - size.height / 2), 
+                                size.width, size.height);
+    }
+
     // The methods are returned as an object here.
     return {
         useSheet: useSheet,
@@ -228,6 +238,8 @@ const Sprite = function(ctx, x, y) {
         isReady: isReady,
         draw: draw,
         draw_bg: draw_bg,
+        remove: remove,
         update: update
+        
     };
 };

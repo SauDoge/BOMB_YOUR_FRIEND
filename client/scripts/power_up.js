@@ -14,19 +14,48 @@ const Powerup = function(ctx, x, y, type) {
 
     // This is the sprite object of the powerup created from the Sprite module.
     const sprite = Sprite(ctx, x, y);
-
+    const types = ["extra_bomb", "fire", "speed"];
     // The sprite object is configured for the powerup sprite here.
-    sprite.setSequence(sequences[type])
-          .setScale(0.9)
-          .setShadowScale({ x: 0.75, y: 0.2 })
-          .useSheet("resources/sprites/powerups.png");
+    if (type != "random")
+        sprite.setSequence(sequences[type])
+            .setScale(0.9)
+            .setShadowScale({ x: 0.75, y: 0.2 })
+            .useSheet("resources/sprites/powerups.png");
+    else {
+        type = types[[Math.floor(Math.random()*types.length)]];
+        sprite.setSequence(sequences[type])
+            .setScale(0.9)
+            .setShadowScale({ x: 0.75, y: 0.2 })
+            .useSheet("resources/sprites/powerups.png");
+    }
 
+    let used = false; 
+
+    const intersect = function(box) {
+        return sprite.getBoundingBox().intersect(box);
+    }
+
+    const getType = function() {
+        return type;
+    }
+
+    const use = function() {
+        used = true;
+    }
+
+    const getUsed = function() {
+        return used;
+    }
     // The methods are returned as an object here.
     return {
         getXY: sprite.getXY,
         setXY: sprite.setXY,
         getBoundingBox: sprite.getBoundingBox,
         draw: sprite.draw,
-        update: sprite.update
+        update: sprite.update,
+        intersect: intersect,
+        getType: getType,
+        getUsed: getUsed,
+        use: use
     };
 };

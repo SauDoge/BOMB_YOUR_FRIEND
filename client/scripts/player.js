@@ -3,7 +3,7 @@
 // - `x` - The initial x position of the player
 // - `y` - The initial y position of the player
 // - `gameArea` - The bounding box of the game area
-const Player = function(ctx, x, y, gameArea, type) {
+const Player = function(ctx, x, y, gameArea, type, obstacles, entities) {
 
     // This is the sprite sequences of the player facing different directions.
     // It contains the idling sprite sequences `idleLeft`, `idleUp`, `idleRight` and `idleDown`,
@@ -26,7 +26,7 @@ const Player = function(ctx, x, y, gameArea, type) {
         /* For different conditions */
         victory: {x: 220, y: 0 + 40 * type, width: 25, height: 35, count: 2, timing: 50, loop: true},
         defeat: {x: 260, y: 0 + 40 * type, width: 25, height: 35, count: 2, timing: 50, loop: true},
-        dead: {x: 180, y: 0 + 40 * type, width: 25, height: 35, count: 2, timing: 50, loop: true},
+        dead: {x: 180, y: 0 + 40 * type, width: 25, height: 35, count: 2, timing: 50, loop: false},
         
     };
 
@@ -35,7 +35,7 @@ const Player = function(ctx, x, y, gameArea, type) {
 
     // The sprite object is configured for the player sprite here.
     sprite.setSequence(sequences.idleDown)
-          .setScale(2.6)
+          .setScale(2.5)
           .setShadowScale({ x: 0.75, y: 0.20 })
           .useSheet("resources/sprites/characters.png");
 
@@ -49,6 +49,15 @@ const Player = function(ctx, x, y, gameArea, type) {
 
     // This is the moving speed (pixels per second) of the player
     let speed = 150;
+
+    // This is the bomb power (radius) of the player
+    let power = 2
+
+    // This is the number of bombds the player can place
+    let bomb_number = 1
+
+    // This is the player's status
+    let alive = true;
 
     // This function sets the player's moving direction.
     // - `dir` - the moving direction (1: Left, 2: Up, 3: Right, 4: Down)
@@ -88,6 +97,24 @@ const Player = function(ctx, x, y, gameArea, type) {
         speed = 150;
     };
 
+    // Return the nearest grid space of the player
+    const getPosition = function() {
+        let { x, y } = sprite.getXY();
+        return [Math.round((x - 100)/63), Math.round((y - 80)/63)];
+    }
+
+    const getAlive = function() {
+        return alive;
+    }
+
+    const getBombNumber = function() {
+        return bomb_number;
+    }
+
+    const getPower = function() {
+        return power;
+    }
+
     // This function updates the player depending on his movement.
     // - `time` - The timestamp when this function is called
     const update = function(time) {
@@ -102,10 +129,30 @@ const Player = function(ctx, x, y, gameArea, type) {
                 case 3: x += speed / 60; break;
                 case 4: y += speed / 60; break;
             }
+            for (entity of entities) {
+                if (entity.intersect(sprite.getBoundingBox()) && !entity.getUsed()) {
+                    switch (entity.getType()) {
+                        case "fire": power += 1; entity.use(); break;
+                        case "speed": speed += 50; entity.use(); break;
+                        case "extra_bomb": bomb_number += 1; entity.use(); break;
+                        case "explosion": sprite.setSequence(sequences.dead);
+                        alive = dead; break;
+
+                    }
+
+                }
+
+            }
 
             /* Set the new position if it is within the game area */
-            if (gameArea.isPointInBox(x, y))
+            /* Handle collision with obstacles */
+            if (gameArea.isPointInBox(x, y)) {
+                for (obstacle of obstacles)
+                    if (obstacle.isPointInBox(x,y, direction))
+                        return;
                 sprite.setXY(x, y);
+            }
+            
         }
 
         /* Update the sprite object */
@@ -120,6 +167,10 @@ const Player = function(ctx, x, y, gameArea, type) {
         slowDown: slowDown,
         getBoundingBox: sprite.getBoundingBox,
         draw: sprite.draw,
-        update: update
+        update: update,
+        getPosition: getPosition,
+        getAlive: getAlive,
+        getBombNumber: getBombNumber,
+        getPower: getPower
     };
 };
