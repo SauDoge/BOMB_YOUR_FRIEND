@@ -7,7 +7,7 @@ import { config } from "./config/config";
 import { Server } from "socket.io";
 import { incomingMiddleware, corsMiddleware } from "./middlewares";
 import { SERVER_RUNNING_MSG } from "./utils/stringResources";
-import { userRoutes } from "./routes";
+import { userRoutes, roomRoutes } from "./routes";
 
 const router = express();
 
@@ -59,6 +59,7 @@ const createServer = () => {
   router.use(corsMiddleware);
 
   router.use("/auth", userRoutes);
+  router.use("/room", roomRoutes);
 
   router.get("/ping", (req, res, next) =>
     res.status(200).json({ msg: SERVER_RUNNING_MSG })
