@@ -12,3 +12,6 @@ export const LOGIN_SUCCESS = `Login Successfull`;
 export const INCORRECT_CREDENTIAL = `Incorrect password or username`;
 export const SUCCESSFULLY_LOGOUT = `Successfully logout`;
 export const ERROR_LOGOUT = `Error logging out`;
+export const ROOM_ERROR = `Room name not specified`;
+export const DUPLICATE_ROOM = `Room duplicated`;
+export const SUCCESSFULLY_CREATE_ROOM = `Successfully create room`;

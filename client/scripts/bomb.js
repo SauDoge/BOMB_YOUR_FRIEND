@@ -15,6 +15,7 @@ const Bomb = function(ctx, x, y) {
         return now - birthTime;;
     }
 
+
     // This is the sprite object of the bomb created from the Sprite module.
     const sprite = Sprite(ctx, x, y);
 
