@@ -36,7 +36,7 @@ const Destructable = function(ctx, x, y, type) {
     // Variable holding status of block
     let destroyed = false;
 
-    const destroy_animation = function() {
+    const destroy = function() {
         /* Destroy the block */
         switch (type) {
             case "idle_brick": 
@@ -53,11 +53,11 @@ const Destructable = function(ctx, x, y, type) {
                 break;
         }
 
-        setTimeout(destroy, 600);
+        setTimeout(function () {destroyed = true;}, 600);
     };
 
-    const destroy = function() {
-        destroyed = true;
+    const getType = function() {
+        return "destructable";
     }
 
     const getDestroyed = function() {
@@ -84,6 +84,7 @@ const Destructable = function(ctx, x, y, type) {
         update: sprite.update,
         isPointInBox: isPointInBox,
         getDestroyed: getDestroyed,
-        destroy_animation: destroy_animation
+        getType: getType
+
     };
 };
