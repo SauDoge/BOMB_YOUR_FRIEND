@@ -125,134 +125,135 @@ $(document).ready(function () {
         nonDestructableSpace.forEach(space => nonDestructables.push(NonDestructable(context, toX(space[0]), toY(space[1]))))
     }
 
-    function sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
     const includesArray = (data, arr) => {
         return data.some(e => Array.isArray(e) && e.every((o, i) => Object.is(arr[i], o)));
     }
 
-    function createBomb(context, bomb_context, bombs, bomb_number, explosions_arr, pos, power, obstacles) {
-        if (bombs.length < bomb_number) {
-            bombs.push(Bomb(bomb_context, toX(pos[0]), toY(pos[1])));
-            setTimeout(function () { const pos_arr = createExplosion(context, explosions, power, obstacles, pos[0], pos[1]); }, 2000);
-            //explosions = explosions.filter( (e) => !explosion.includes(e));
+    function createBomb(context, bomb_context, bombs, bomb_number, pos, power) {
+        if (bombs.length < bomb_number) { 
+            bomb = Bomb(bomb_context, toX(pos[0]), toY(pos[1]));
+            bombs.push(bomb);
+            setTimeout( function () {
+                createExplosion(context, explosions, power, pos[0], pos[1]); 
+                sounds.explosion.play();
+            }, 1800);
         }
     }
 
-    function createExplosion(context, e, power, obstacles, col, row) {
+    function createExplosion(context, e, power, col, row) {
         /** Create explosions **/
-        // Create array of explosion positions to return to delete explosions
-        let positions = []
-        positions.push([col, row])
         e.push(Explosion(context, toX(col), toY(row), "center"));
+
+        /* Check if player got hit by explosion */
+        players.forEach((player) => player.checkExplosion(e));
 
         for (var i = col + 1; i < col + power; i++) {
             if (i > 10)
                 break;
 
-            if (includesArray(nonDestructableSpace, [i, row]))
+            if (includesArray(nonDestructableSpace, [i, row])) 
                 break;
+            
+            broke = false
 
-            let broke = false
-
-            for (const d of destructables) {
+            for (d of destructables.concat(powerups)) {
                 if (d.getXY().x == toX(i) && d.getXY().y == toY(row)) {
-                    d.destroy_animation();
-                    broke = true;
+                    d.destroy();
+                    if (d.getType() == "destructable") broke = true;
                 }
             }
             if (broke == true) break;
 
-            if (i == col + power - 1) {
-                e.push(Explosion(context, toX(i), toY(row), "right"));
-                positions.push([i, row])
-            }
-            else {
-                e.push(Explosion(context, toX(i), toY(row), "h_mid"));
-                positions.push([i, row])
-            }
+            players.forEach((player) => player.checkExplosion([i, row]));
+
+            if (i == col + power - 1) e.push(Explosion(context, toX(i), toY(row), "right"));
+
+            else e.push(Explosion(context, toX(i), toY(row), "h_mid"));
+
+
         }
         for (var i = col - 1; i > col - power; i--) {
             if (i < 0)
                 break;
 
-            if (includesArray(nonDestructableSpace, [i, row]))
+            if (includesArray(nonDestructableSpace, [i, row])) 
                 break;
+            
+            broke = false
 
-            let broke = false
-
-            for (const d of destructables) {
+            for (d of destructables.concat(powerups)) {
                 if (d.getXY().x == toX(i) && d.getXY().y == toY(row)) {
-                    d.destroy_animation();
-                    broke = true;
+                    d.destroy();
+                    if (d.getType() == "destructable") broke = true;
                 }
             }
             if (broke == true) break;
 
-            if (i == col - power + 1) {
-                e.push(Explosion(context, toX(i), toY(row), "left"));
-                positions.push([i, row])
-            }
-            else {
-                e.push(Explosion(context, toX(i), toY(row), "h_mid"));
-                positions.push([i, row])
-            }
+            players.forEach((player) => player.checkExplosion([i, row]));
+
+            if (i == col - power + 1) e.push(Explosion(context, toX(i), toY(row), "left"));
+        
+            else e.push(Explosion(context, toX(i), toY(row), "h_mid"));
+            players.forEach((player) => player.checkExplosion(e));
+
+                        
         }
 
         for (var i = row + 1; i < row + power; i++) {
             if (i > 10)
                 break;
 
-            if (includesArray(nonDestructableSpace, [col, i]))
+            if (includesArray(nonDestructableSpace, [col, i])) 
                 break;
+            
+            broke = false
 
-            let broke = false
-
-            for (const d of destructables) {
+            for (d of destructables.concat(powerups)) {
                 if (d.getXY().x == toX(col) && d.getXY().y == toY(i)) {
-                    d.destroy_animation();
-                    broke = true;
+                    d.destroy();
+                    if (d.getType() == "destructable") broke = true;
                 }
             }
             if (broke == true) break;
 
-            if (i == row + power - 1) {
-                e.push(Explosion(context, toX(col), toY(i), "down"));
-                positions.push([col, i])
-            }
-            else {
-                e.push(Explosion(context, toX(col), toY(i), "v_mid"));
-                positions.push([col, i])
-            }
+            players.forEach((player) => player.checkExplosion([col, i]));
+
+
+            if (i == row + power - 1) e.push(Explosion(context, toX(col), toY(i), "down"));
+    
+            else e.push(Explosion(context, toX(col), toY(i), "v_mid"));
+            players.forEach((player) => player.checkExplosion(e));
+
+
         }
         for (var i = row - 1; i > row - power; i--) {
             if (i < 0)
                 break;
 
-            if (includesArray(nonDestructableSpace, [col, i]))
+            if (includesArray(nonDestructableSpace, [col, i])) 
                 break;
+            
+            broke = false
 
-            let broke = false
-
-            for (const d of destructables) {
+            for (d of destructables.concat(powerups)) {
                 if (d.getXY().x == toX(col) && d.getXY().y == toY(i)) {
-                    d.destroy_animation();
-                    broke = true;
+                    d.destroy();
+                    if (d.getType() == "destructable") broke = true;
                 }
             }
             if (broke == true) break;
 
-            if (i == row - power + 1) {
-                e.push(Explosion(context, toX(col), toY(i), "up"));
-                positions.push([col, i])
-            }
-            else {
-                e.push(Explosion(context, toX(col), toY(i), "v_mid"));
-                positions.push([col, i])
-            }
+            players.forEach((player) => player.checkExplosion([col, i]));
+
+            if (i == row - power + 1) e.push(Explosion(context, toX(col), toY(i), "up"));
+
+            else e.push(Explosion(context, toX(col), toY(i), "v_mid"));
+            players.forEach((player) => player.checkExplosion(e));
+
+
         }
+
+
     }
 
 
@@ -266,7 +267,6 @@ $(document).ready(function () {
 
     // define the gameArea 
     const gameArea = BoundingBox(context, toY(0), toX(0), toY(8), toX(10));
-    const corners = gameArea.getPoints();
 
     // create a Background instance
     // draw the instance
@@ -279,8 +279,7 @@ $(document).ready(function () {
     let destructables = []
     let powerups = []
     let nonDestructables = []
-    let bombs_1 = [];
-    let bombs_2 = [];
+    let bombs = [];
     let explosions = [];
 
     initializeEntities(context, destructables, powerups, "idle_brick");
@@ -289,7 +288,7 @@ $(document).ready(function () {
     let entities = powerups.concat(explosions);
 
     const players = [
-        Player(context, toX(0), toY(0), gameArea, 2, entities),
+        Player(context, toX(0), toY(0), gameArea, 0, entities),
         Player(context, toX(10), toY(8), gameArea, 1, entities)
     ];
 
@@ -298,11 +297,13 @@ $(document).ready(function () {
         background: new Audio("resources/sounds/bomberman.ogg"),
         bomb: new Audio("resources/sounds/bomb.wav"),
         explosion: new Audio("resources/sounds/explosion.wav"),
-        item: new Audio("resources/sounds/item.wav")
-
+        item: new Audio("resources/sounds/item.wav"),
+        gameover: new Audio("resources/sounds/gameover.mp3"),
+        cheat: new Audio("resources/sounds/cheat.mp3")
     };
-
-    sounds.background.volume = 0.3
+    sounds.cheat.volume = 0.2;
+    sounds.explosion.volume = 0.7;
+    sounds.background.volume = 0.1;
 
     const totalGameTime = 120;   // Total game time in seconds
     let gameStartTime = 0;      // The timestamp when the game starts
@@ -310,7 +311,8 @@ $(document).ready(function () {
 
 
     /* The main processing of the game */
-    function doFrame(now) {
+    function doFrame(now, count=100, gameOver=false) {
+
         if (gameStartTime == 0) gameStartTime = now;
 
         /* Update the time remaining */
@@ -318,29 +320,63 @@ $(document).ready(function () {
         const timeRemaining = Math.ceil((totalGameTime * 1000 - gameTimeSoFar) / 1000);
         $("#countdown").text(fmtMSS(timeRemaining));
 
-        /* Handle the game over situation here */
-        if (timeRemaining <= 0 || !players[0].getAlive() || !players[1].getAlive()) {
+        if (gameOver == true && count == 0) {
             sounds.background.pause();
+            if (players[0].getAlive() && !players[1].getAlive()) {
+                players[0].addScore(timeRemaining * 10);
+                $("#winner-message").text("Player 1 wins!")
+            }
+            else if (!players[0].getAlive() && players[1].getAlive()) {
+                players[1].addScore(timeRemaining * 10);
+                $("#winner-message").text("Player 2 wins!")
+            }
+            else $("#winner-message").text("Draw!")
+            updated_leaderboard = []
+            $("#player1-score").text(players[0].getScore().toString());
+            $("#player2-score").text(players[0].getScore().toString());
+            // updated_leaderboard = leaderboard.update(players[0].getScore(), players[1].getScore());
+            // 
+            // $('#leaderboard').empty();
+            // let i = 0
+            // for (ranking of updated_leaderboard) {
+                    // let rankCell = ranking.insertCell();
+                    // let nameCell = ranking.insertCell();
+                    // let scoreCell = ranking.insertCell();
+                    // rankCell.textContext = ranking.rank;
+                    // nameCell.textContext = ranking.username;
+                    // scoreCell.textContext = ranking.score;
+
+                    // if (i >= 10) break;
+                    // i += 1;
+            // }
             $("#container").hide();
             $("#gameover").show();
             return;
         }
 
-        /* Update the entities */
+        /* Update the entities, destroy destructables/explosions or use powerups if needed */
         destructables.forEach((destructable) => {
-            if (destructable.getDestroyed()) { destructables = destructables.filter(d => d !== destructable) }
+            if (destructable.getDestroyed()) {destructables = destructables.filter(d => d !== destructable)}
         })
         powerups.forEach((powerup) => {
-            if (powerup.getUsed()) { powerups = powerups.filter(p => p !== powerup) }
+            if (powerup.getUsed()) {sounds.item.currentTime = 0; sounds.item.play(); powerups = powerups.filter(p => p !== powerup)}
         })
-        obstacles = destructables.concat(nonDestructables)
-        entities = powerups.concat(explosions)
-
+        powerups.forEach((powerup) => {
+            if (powerup.getDestroyed()) {powerups = powerups.filter(p => p !== powerup)}
+        })
+        explosions.forEach((explosion) => {
+            if (explosion.getAge(now) > 600) {explosions = explosions.filter(e => e !== explosion)}
+        })
+        bombs_1.forEach((bomb) => {
+            if (bomb.getAge(now) > 1800) {bombs_1 = bombs_1.filter(b => b !== bomb)}
+        })
+        bombs_2.forEach((bomb) => {
+            if (bomb.getAge(now) > 1800) {bombs_2 = bombs_2.filter(b => b !== bomb)}
+        }) 
 
         /* Update the sprites */
-        players.forEach((player) => player.update(now, obstacles));
-        bombs_1.forEach((bomb) => bomb.update(now));
-        bombs_2.forEach((bomb) => bomb.update(now));
+        players.forEach((player) => player.update(now, destructables.concat(nonDestructables), powerups));
+        bombs.forEach((bomb) => bomb.update(now));
         powerups.forEach((powerup) => powerup.update(now));
         destructables.forEach(destructable => destructable.update(now));
         nonDestructables.forEach(nonDestructable => nonDestructable.update(now));
@@ -352,18 +388,22 @@ $(document).ready(function () {
 
         /* Draw the sprites */
         players.forEach((player) => player.draw());
-        bombs_1.forEach((bomb) => bomb.draw());
-        bombs_2.forEach((bomb) => bomb.draw());
+        bombs.forEach((bomb) => bomb.draw());
         powerups.forEach((powerup) => powerup.draw());
         destructables.forEach(destructable => destructable.draw());
         nonDestructables.forEach(nonDestructable => nonDestructable.draw());
         explosions.forEach((explosion) => explosion.draw());
-
-        /* Process the next frame */
-        requestAnimationFrame(doFrame);
+        
+        /* Play a few more frames before game over screen appears */
+        if (timeRemaining <= 0 || !players[0].getAlive() || !players[1].getAlive()) {
+            requestAnimationFrame(function(timestamp) {
+                if (count== 100) sounds.gameover.play();
+                doFrame(timestamp, count-1, true);
+            });
+        }
+        else /* Process the next frame */
+            requestAnimationFrame(doFrame);
     }
-
-
 
     /* Handle the keydown of arrow keys and spacebar */
     $(document).on("keydown", function (event) {
@@ -387,9 +427,21 @@ $(document).ready(function () {
                 sendMessage(0, 4);
                 break;
             case 32:
-                createBomb(context, bomb_context, bombs_1, players[index].getBombNumber(), explosions, players[index].getPosition(), players[index].getPower(), obstacles);
+                createBomb(context, bomb_context, bombs, players[index].getBombNumber(), players[index].getPosition(), players[index].getPower());
                 sendMessage(2, -1)
                 break;
+            case 81: {
+                sounds.cheat.currentTime = 0;
+                sounds.cheat.play();
+                players[index].powerUp();
+                break;
+            }
+            case 87: {
+                sounds.cheat.currentTime = 0;
+                sounds.cheat.play();
+                players[index].speedUp();
+                break;
+            }
         }
 
     });
@@ -415,8 +467,7 @@ $(document).ready(function () {
                 players[index].stop(4);
                 sendMessage(1, 4);
                 break;
-        }
-
+            }
     });
 
     socket.on("receive", (data) => {
@@ -442,7 +493,5 @@ $(document).ready(function () {
             assigned = true;
         }
     })
-
-
 
 });
