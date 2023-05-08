@@ -2,8 +2,11 @@
 // - `ctx` - A canvas context for drawing
 // - `x` - The initial x position of the player
 // - `y` - The initial y position of the player
+
+//const { truncate } = require("fs");
+
 // - `gameArea` - The bounding box of the game area
-const Player = function(ctx, x, y, gameArea, type, entities) {
+const Player = function(ctx, x, y, gameArea, type) {
 
     // This is the sprite sequences of the player facing different directions.
     // It contains the idling sprite sequences `idleLeft`, `idleUp`, `idleRight` and `idleDown`,
@@ -26,7 +29,7 @@ const Player = function(ctx, x, y, gameArea, type, entities) {
         /* For different conditions */
         victory: {x: 220, y: 0 + 40 * type, width: 25, height: 35, count: 2, timing: 50, loop: true},
         defeat: {x: 260, y: 0 + 40 * type, width: 25, height: 35, count: 2, timing: 50, loop: true},
-        dead: {x: 180, y: 0 + 40 * type, width: 25, height: 35, count: 2, timing: 50, loop: false},
+        dead: {x: 180, y: 0 + 40 * type, width: 20, height: 28, count: 2, timing: 150, loop: true},
         
     };
 
@@ -46,6 +49,7 @@ const Player = function(ctx, x, y, gameArea, type, entities) {
     // - `3` - moving to the right
     // - `4` - moving down
     let direction = 0;
+    
 
     // This is the moving speed (pixels per second) of the player
     let speed = 150;
@@ -56,8 +60,32 @@ const Player = function(ctx, x, y, gameArea, type, entities) {
     // This is the number of bombds the player can place
     let bomb_number = 1
 
+    // Max stats
+    const MaxSpeed = 300;
+    const MaxPower = 11;
+    const MaxBombNumber = 5;
+
+    // This is the score of the player
+    let score = 0
+
     // This is the player's status
     let alive = true;
+
+    function arraysEqual(a, b) {
+        if (a === b) return true;
+        if (a == null || b == null) return false;
+        if (a.length !== b.length) return false;
+
+        // If you don't care about the order of the elements inside
+        // the array, you should sort both arrays here.
+        // Please note that calling sort on an array will modify that array.
+        // you might want to clone your array first.
+
+        for (var i = 0; i < a.length; ++i) {
+            if (a[i] !== b[i]) return false;
+        }
+        return true;
+    }
 
     // This function sets the player's moving direction.
     // - `dir` - the moving direction (1: Left, 2: Up, 3: Right, 4: Down)
@@ -89,13 +117,13 @@ const Player = function(ctx, x, y, gameArea, type, entities) {
 
     // This function speeds up the player.
     const speedUp = function() {
-        speed = 250;
+        speed = MaxSpeed;
     };
 
-    // This function slows down the player.
-    const slowDown = function() {
-        speed = 150;
-    };
+    // This function increases the power of the bombs of the player.
+    const powerUp = function() {
+        power = MaxPower;
+    }
 
     // Return the nearest grid space of the player
     const getPosition = function() {
@@ -115,11 +143,27 @@ const Player = function(ctx, x, y, gameArea, type, entities) {
         return power;
     }
 
+    const getScore = function() {
+        return score;
+    }
+
+    const addScore = function(num) {
+        if (num > 0) score += num;
+    }
+
+    const checkExplosion = function(arr) {
+        if (arraysEqual(arr, getPosition())) {
+            sprite.setSequence(sequences.dead);
+            alive = false; 
+        }
+    }
+
+
     // This function updates the player depending on his movement.
     // - `time` - The timestamp when this function is called
-    const update = function(time, obstacles) {
+    const update = function(time, obstacles, powerups) {
         /* Update the player if the player is moving */
-        if (direction != 0) {
+        if (direction != 0 && alive) {
             let { x, y } = sprite.getXY();
 
             /* Move the player */
@@ -129,19 +173,14 @@ const Player = function(ctx, x, y, gameArea, type, entities) {
                 case 3: x += speed / 60; break;
                 case 4: y += speed / 60; break;
             }
-            for (entity of entities) {
-                if (entity.intersect(sprite.getBoundingBox()) && !entity.getUsed()) {
-                    switch (entity.getType()) {
-                        case "fire": power += 1; entity.use(); break;
-                        case "speed": speed += 50; entity.use(); break;
-                        case "extra_bomb": bomb_number += 1; entity.use(); break;
-                        case "explosion": sprite.setSequence(sequences.dead);
-                        alive = dead; break;
-
+            for (powerup of powerups) {
+                if (powerup.intersect(sprite.getBoundingBox()) && !powerup.getUsed()) {
+                    switch (powerup.getType()) {
+                        case "fire": {if (power < MaxPower) power += 1; score += 10; powerup.use(); break;}
+                        case "speed": {if (speed < MaxSpeed) speed += 50; score += 10; powerup.use(); break;}
+                        case "extra_bomb": {if (bomb_number < MaxBombNumber) bomb_number += 1; score += 10; powerup.use(); break;}
                     }
-
                 }
-
             }
 
             /* Set the new position if it is within the game area */
@@ -164,13 +203,16 @@ const Player = function(ctx, x, y, gameArea, type, entities) {
         move: move,
         stop: stop,
         speedUp: speedUp,
-        slowDown: slowDown,
+        powerUp: powerUp,
         getBoundingBox: sprite.getBoundingBox,
         draw: sprite.draw,
         update: update,
         getPosition: getPosition,
         getAlive: getAlive,
         getBombNumber: getBombNumber,
-        getPower: getPower
+        getPower: getPower,
+        getScore: getScore,
+        addScore: addScore,
+        checkExplosion: checkExplosion
     };
 };

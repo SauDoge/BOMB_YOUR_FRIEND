@@ -7,8 +7,13 @@ const Bomb = function(ctx, x, y) {
 
     // This is the sprite sequences of the bomb/explosions
     const sequence = { x: 0, y:  0, width: 64, height: 64, count: 4, timing: 200, loop: true };
-
     
+    let birthTime = performance.now();
+
+
+    const getAge = function(now) {
+        return now - birthTime;;
+    }
 
     // This is the sprite object of the bomb created from the Sprite module.
     const sprite = Sprite(ctx, x, y);
@@ -25,6 +30,8 @@ const Bomb = function(ctx, x, y) {
         setXY: sprite.setXY,
         getBoundingBox: sprite.getBoundingBox,
         draw: sprite.draw,
-        update: sprite.update
+        update: sprite.update,
+        getAge: getAge
+
     };
 };

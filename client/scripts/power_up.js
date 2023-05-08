@@ -30,6 +30,7 @@ const Powerup = function(ctx, x, y, type) {
     }
 
     let used = false; 
+    let destroyed = false;
 
     const intersect = function(box) {
         return sprite.getBoundingBox().intersect(box);
@@ -46,6 +47,14 @@ const Powerup = function(ctx, x, y, type) {
     const getUsed = function() {
         return used;
     }
+
+    const destroy = function() {
+        destroyed = true;
+    }
+
+    const getDestroyed = function() {
+        return destroyed;
+    }
     // The methods are returned as an object here.
     return {
         getXY: sprite.getXY,
@@ -56,6 +65,8 @@ const Powerup = function(ctx, x, y, type) {
         intersect: intersect,
         getType: getType,
         getUsed: getUsed,
-        use: use
+        use: use,
+        getDestroyed: getDestroyed,
+        destroy: destroy
     };
 };
