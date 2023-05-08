@@ -154,7 +154,7 @@ $(document).ready(function () {
             if (includesArray(nonDestructableSpace, [i, row])) 
                 break;
             
-            broke = false
+            let broke = false
 
             for (d of destructables.concat(powerups)) {
                 if (d.getXY().x == toX(i) && d.getXY().y == toY(row)) {
@@ -179,7 +179,7 @@ $(document).ready(function () {
             if (includesArray(nonDestructableSpace, [i, row])) 
                 break;
             
-            broke = false
+            let broke = false
 
             for (d of destructables.concat(powerups)) {
                 if (d.getXY().x == toX(i) && d.getXY().y == toY(row)) {
@@ -206,7 +206,7 @@ $(document).ready(function () {
             if (includesArray(nonDestructableSpace, [col, i])) 
                 break;
             
-            broke = false
+            let broke = false
 
             for (d of destructables.concat(powerups)) {
                 if (d.getXY().x == toX(col) && d.getXY().y == toY(i)) {
@@ -233,7 +233,7 @@ $(document).ready(function () {
             if (includesArray(nonDestructableSpace, [col, i])) 
                 break;
             
-            broke = false
+            let broke = false
 
             for (d of destructables.concat(powerups)) {
                 if (d.getXY().x == toX(col) && d.getXY().y == toY(i)) {
