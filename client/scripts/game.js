@@ -13,8 +13,21 @@ $(document).ready(function () {
     let assigned = false;
     const room = localStorage.getItem("room");
 
+    // message for a movement of player
     const sendMessage = (move, direction) => {
         socket.emit("message", { index, room, move, direction });
+    }
+
+    // message for placing of bomb
+    // position, power
+    const sendBombPlacement = () => {
+        socket.emit("placing bomb", {})
+    }
+
+    // message for picking up an item
+    // item type, position
+    const sendItemRetrieval = () => {
+        socket.emit("retrieving item", {})
     }
 
 
@@ -41,6 +54,7 @@ $(document).ready(function () {
     const destructableSpace = [];
     const nonDestructableSpace = [];
     let destructablesGrid = [];
+
     for (var i = 0; i < 11; i++) {
         for (var j = 0; j < 9; j++) {
             if (i % 2 && j % 2) {
@@ -49,7 +63,7 @@ $(document).ready(function () {
             }
 
             // Can't have destructable in initial player square and adjacent squares
-            if (i + j > 1 && i + j < 17)
+            if (i + j > 1 && !(i == 10 && i == 7) && !(i == 10 && j == 8) && !(i == 9 && j == 8))
                 destructableSpace.push([i, j]);
 
             playable.push([i, j]);
@@ -57,20 +71,54 @@ $(document).ready(function () {
 
     }
 
+    /**
     function initializeEntities(d, p, context, destructables, powerups, destructable_type) {
-        /** Randomize destructable and powerup locations, d = number of destructables, p = number of powerups **/
+        //Randomize destructable and powerup locations, d = number of destructables, p = number of powerups
+
         // Shuffle array
         const shuffled = destructableSpace.sort(() => 0.5 - Math.random());
 
         // Get sub-array of first n elements after shuffled
         let selected = shuffled.slice(0, d);
         let non_selected = shuffled.slice(d + 1, d + 1 + p);
+
         selected.forEach(space => {
             destructables.push(Destructable(context, toX(space[0]), toY(space[1]), destructable_type));
             destructablesGrid.push([space[0], space[1]]);
         });
+
         non_selected.forEach(space => powerups.push(Powerup(context, toX(space[0]), toY(space[1]), "random")))
     }
+    **/
+    
+    const wall_coordinates = [[0, 2], [2, 2], [4, 2], [6,2], [8,2], [10, 2],
+        [0, 4], [2, 4], [4, 4], [6, 4], [8, 4], [10, 4], 
+        [0, 6], [2, 6], [4, 6], [6, 6], [8, 6], [10, 6]];
+    const speed_coordinates = [
+          [2, 1], [2, 3], [2, 5] 
+        ];
+    const bomb_up_coordinates = [
+          [4, 1], [4, 3], [4, 5]
+        ];
+    const fire_coordinates = [
+          [6,1 ], [6,3], [6, 5]
+        ];
+    
+    
+    function initializeEntities(context, destructables, powerups, destructable_type) {
+        wall_coordinates.forEach(space => {
+                destructables.push(Destructable(context, toX(space[0]), toY(space[1]), destructable_type));
+                destructablesGrid.push([space[0], space[1]]);
+            });
+    
+        speed_coordinates.forEach(space => powerups.push(Powerup(context, toX(space[0]), toY(space[1]), "speed")));
+            
+        bomb_up_coordinates.forEach(space => powerups.push(Powerup(context, toX(space[0]), toY(space[1]), "extra_bomb")));
+
+        fire_coordinates.forEach(space => powerups.push(Powerup(context, toX(space[0]), toY(space[1]), "fire")));
+    
+    }
+    
 
     function initializeNonDestructables(context, nonDestructables) {
         /** Initialize non-destructables **/
@@ -235,9 +283,9 @@ $(document).ready(function () {
     let bombs_2 = [];
     let explosions = [];
 
-    initializeEntities(10, 30, context, destructables, powerups, "idle_brick")
+    initializeEntities(context, destructables, powerups, "idle_brick");
     initializeNonDestructables(context, nonDestructables);
-    let obstacles = nonDestructables.concat(destructables)
+    let obstacles = nonDestructables.concat(destructables);
     let entities = powerups.concat(explosions);
 
     const players = [
@@ -255,36 +303,6 @@ $(document).ready(function () {
     };
 
     sounds.background.volume = 0.3
-
-    // Set Boundaries 
-    // Square grid width = 18px; 
-    // grid_width = 18;
-    // num_rows = 11
-    // num_cols = 13
-    // const boundaries = [];
-    // for (var j = 0; j < num_rows; j++) {
-    //     if (j == 0 || j == num_rows - 1) {
-    //         for (var i = 0; i < num_cols; i++) {
-    //             {
-    //                 boundaries.push(BoundingBox(context, grid_width * i, grid_width * j, grid_width * (i + 1), grid_width * (j + 1)));
-    //             }
-    //         }
-    //     }
-    //     else if (j % 2 == 1) {
-    //         boundaries.push(BoundingBox(context, grid_width * 0, grid_width * j, grid_width * 1, grid_width * (j + 1)));
-    //         boundaries.push(BoundingBox(context, grid_width * (num_cols - 1), grid_width * j, grid_width * num_cols, grid_width * (j + 1)));
-    //     }
-    //     else if (j % 2 == 0) {
-    //         // get every even i
-    //         for (var i = 0; i < num_cols; i++) {
-    //             {
-    //                 if (i % 2 == 0) {
-    //                     boundaries.push(BoundingBox(context, grid_width * i, grid_width * j, grid_width * (i + 1), grid_width * (j + 1)));
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
 
     const totalGameTime = 120;   // Total game time in seconds
     let gameStartTime = 0;      // The timestamp when the game starts
@@ -424,4 +442,7 @@ $(document).ready(function () {
             assigned = true;
         }
     })
+
+
+
 });

@@ -48,6 +48,7 @@
 
 		<div class="well flipInX animated">
             <div class="row">
+                <!--Instruction column-->
 				<div class="col-sm-4">
                     <strong>Based on the popular retro game "Bomberman", experience this classic party game right in your web browser!</strong>
                     </br></br>
@@ -63,11 +64,15 @@
                     Every match lasts 2 minutes. Defeat your enemy quickly to earn more points and rank high! 
                     </br></br>
                 </div>
+
+                <!--Non-display column-->
                 <div class="col-sm-4" style="display:none">
                     <a href="build/index.htm" class="btn btn-primary"><i class="bi bi-dpad-fill"></i> Join Room</a> <hr />
                     <a href="build/index.htm" class="btn btn-primary"><i class="bi bi-dpad-fill"></i> Start Room</a> <hr />
 
                 </div>
+
+                <!--Sign-In and Register column-->
                 <div class="col-sm-4" id="signin-register">
                     <!-- Tabs -->
                     <ul class="nav nav-tabs">
@@ -128,6 +133,16 @@
                         </div>
                     </div>
                 </div>
+
+                <!--Sign-out column-->
+                <div class="col-sm-4" id="signout-column" style="display:none;">
+                    <strong>You have signed in successfully as "<span id="sign-in-name"></span>" </strong>
+                    <form id="logout-form">
+                        <button type="submit" class="btn btn-default">Logout</button>
+                    </form>
+                </div>
+
+                <!-- Room Column-->
                 <div class="col-md-4" style="min-height: 40vh;" id="rooms">
                         <ul class="list-group" style="min-height: 40vh;">
                         </ul>
@@ -143,6 +158,7 @@
             </div>
 		</div>
 	</div>
+    
     <div id="game_container" style='display: none'>
         <!-- Main Game Area-->
         <canvas width="705px" height="600px"> </canvas>

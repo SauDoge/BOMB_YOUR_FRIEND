@@ -8,8 +8,6 @@ const NonDestructable = function(ctx, x, y) {
     // This is the sprite sequences of the destructables
     const sequence = {x:0, y:0, width: 18, height: 18, count: 1, timing: 100000, loop: true};
 
-    
-
     // This is the sprite object of the destructables created from the Sprite module.
     const sprite = Sprite(ctx, x, y);
 

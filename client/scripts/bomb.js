@@ -8,8 +8,6 @@ const Bomb = function(ctx, x, y) {
     // This is the sprite sequences of the bomb/explosions
     const sequence = { x: 0, y:  0, width: 64, height: 64, count: 4, timing: 200, loop: true };
 
-    
-
     // This is the sprite object of the bomb created from the Sprite module.
     const sprite = Sprite(ctx, x, y);
 
