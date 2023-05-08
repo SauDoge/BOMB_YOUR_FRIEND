@@ -23,7 +23,7 @@ const Background = function(ctx, x, y, index){
     sprite.setSequence(sequences[index])
     .setScale(3.5)
     .setShadowScale({ x: 0, y: 0 })
-    .useSheet("resources/sprites/Backgrounds.png");
+    .useSheet("resources/sprites/backgrounds.png");
 
     // Select the appropriate background
     const setBackground = function(index){
