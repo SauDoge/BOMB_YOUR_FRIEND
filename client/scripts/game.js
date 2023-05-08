@@ -367,12 +367,10 @@ $(document).ready(function () {
         explosions.forEach((explosion) => {
             if (explosion.getAge(now) > 600) {explosions = explosions.filter(e => e !== explosion)}
         })
-        bombs_1.forEach((bomb) => {
-            if (bomb.getAge(now) > 1800) {bombs_1 = bombs_1.filter(b => b !== bomb)}
+        bombs.forEach((bomb) => {
+            if (bomb.getAge(now) > 1800) {bombs = bombs.filter(b => b !== bomb)}
         })
-        bombs_2.forEach((bomb) => {
-            if (bomb.getAge(now) > 1800) {bombs_2 = bombs_2.filter(b => b !== bomb)}
-        }) 
+
 
         /* Update the sprites */
         players.forEach((player) => player.update(now, destructables.concat(nonDestructables), powerups));
@@ -479,7 +477,7 @@ $(document).ready(function () {
                 players[data.index].stop(data.direction);
                 break;
             default:
-                createBomb(context, bomb_context, bombs_1, players[data.index].getBombNumber(), explosions, players[data.index].getPosition(), players[data.index].getPower(), obstacles);
+                createBomb(context, bomb_context, bombs, players[data.index].getBombNumber(), explosions, players[data.index].getPosition(), players[data.index].getPower(), obstacles);
         }
     })
 
