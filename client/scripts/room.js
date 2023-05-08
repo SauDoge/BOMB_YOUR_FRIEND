@@ -1,6 +1,6 @@
 const Room = (() => {
 
-    const url = `http://localhost:3000/room`;
+    const url = `http://localhost:8000/room`;
 
     const getRooms = async (onSuccess, onError) => {
         const res = await fetch(url, {

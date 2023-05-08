@@ -1,7 +1,7 @@
 const Authentication = (() => {
 
     const url = (auth) => {
-        return `http://localhost:3000/auth/${auth}`;
+        return `http://localhost:8000/auth/${auth}`;
     }
 
     const sendAuth = async (username, password, endpoint, onSuccess, onError) => {
