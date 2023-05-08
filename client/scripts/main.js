@@ -23,6 +23,7 @@ $(document).ready(function () {
         
         console.log(`${getUsername()} connect to room ${room}`);
         window.location.href = "game.html";
+        return false;
     })
 
     const cv = $("canvas").get(0);

@@ -26,20 +26,39 @@ const start = () => {
 
     logging.info(`Connection - IP: [${address}] - ID: [${id}]`);
 
+    // socket on a player joining a room
+    // if enough player joined the room, initialise the map for them
     socket.on("join", (room) => {
       logging.info(`Join - IP: [${address}] - ID: [${room}]`);
+
       socket.join(room);
+
       io.to(room).emit(
         "clientConnected",
         io.sockets.adapter.rooms.get(room)?.size
       );
+
     });
 
+    // socket on a player sending a message
     socket.on("message", (msg) => {
       logging.info(`Message - MSG: [${msg}] - IP: [${address}] - ID: [${id}]`);
       socket.to(msg.room).emit("receive", msg);
     });
 
+    // socket on a playing event 
+    // 1) placing a bomb
+    //  1.1) an explosion
+    // 2) picking up an item
+    // 3) moving in a direction
+    socket.on("placing bomb", () => {});
+    
+    socket.on("retrieving item", () => {});
+
+
+
+
+    // socket on a player logging out
     socket.on("disconnect", () => {
       logging.info(`Disconnected - IP: [${address}] - ID: [${id}]`);
     });

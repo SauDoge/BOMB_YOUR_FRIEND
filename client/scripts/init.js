@@ -1,5 +1,6 @@
 const Form = (() => {
     const init = () => {
+
         $('#signin-form').on('submit', (e) => {
             e.preventDefault();
 
@@ -7,8 +8,15 @@ const Form = (() => {
             const password = $('#signin-password').val().trim();
 
             Authentication.login(username, password, () => {
-                document.cookie = `user=${username}`
-                window.location.reload();
+                document.cookie = `user=${username}`;
+                // onSuccess:
+                // 1) disable the sign-in tab
+                // 2) enable the sign-in successful and sign-out tab
+                $('#signin-register').hide();
+                $('#sign-in-name').text(username);
+                $('#signout-column').show();
+
+                // window.location.reload();
             }, (error) => $("#signin-message").text(error))
 
         });
@@ -28,7 +36,13 @@ const Form = (() => {
             Authentication.register(username, password, () => {
                 window.location.reload();
             }, (error) => $("#register-message").text(error));
-        })
+        });
+
+        $('#logout-form').on('submit', (e) => {
+            console.log("logged out");
+            $('#signin-register').show();
+            $('#signout-column').hide();
+        });
     }
     return { init };
 })();

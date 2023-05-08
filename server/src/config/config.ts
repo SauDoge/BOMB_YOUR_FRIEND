@@ -6,7 +6,8 @@ dotenv.config();
 
 const SERVER_PORT = process.env.SERVER_PORT
   ? Number(process.env.SERVER_PORT)
-  : 1337;
+  // : 1337;
+  : 3000;
 const SALT = process.env.HASH_SALT ? Number(process.env.HASH_SALT) : 10;
 const DB_PATH = `./db/users.json`;
 const SESSION_SECRET = process.env.SESSION_SECRET || "secret";
