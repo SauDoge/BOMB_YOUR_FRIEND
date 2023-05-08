@@ -1,9 +1,11 @@
 [
     {
+        "ranking": "1",
         "username": "tony",
         "score": "90"
     },
     {
+        "ranking": "2",
         "username": "may",
         "score": "70"
     }
