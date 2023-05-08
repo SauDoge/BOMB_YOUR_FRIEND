@@ -4,8 +4,6 @@
 // - `y` - The initial y position of the player
 
 
-const { truncate } = require("fs");
-
 // - `gameArea` - The bounding box of the game area
 const Player = function(ctx, x, y, gameArea, type) {
 

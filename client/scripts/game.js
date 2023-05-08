@@ -1,7 +1,7 @@
 import { io } from "socket.io-client";
 import { getUsername } from "../utils/helper";
 
-const socket = io.connect('http://localhost:3000');
+const socket = io.connect('http://localhost:8000');
 
 socket.on("connect", () => {
     console.log(`${getUsername()} logged in room ${localStorage.getItem("room")}`);
@@ -131,7 +131,7 @@ $(document).ready(function () {
 
     function createBomb(context, bomb_context, bombs, bomb_number, pos, power) {
         if (bombs.length < bomb_number) { 
-            bomb = Bomb(bomb_context, toX(pos[0]), toY(pos[1]));
+            const bomb = Bomb(bomb_context, toX(pos[0]), toY(pos[1]));
             bombs.push(bomb);
             setTimeout( function () {
                 createExplosion(context, explosions, power, pos[0], pos[1]); 
@@ -154,9 +154,9 @@ $(document).ready(function () {
             if (includesArray(nonDestructableSpace, [i, row])) 
                 break;
             
-            broke = false
+            let broke = false
 
-            for (d of destructables.concat(powerups)) {
+            for (const d of destructables.concat(powerups)) {
                 if (d.getXY().x == toX(i) && d.getXY().y == toY(row)) {
                     d.destroy();
                     if (d.getType() == "destructable") broke = true;
@@ -179,9 +179,9 @@ $(document).ready(function () {
             if (includesArray(nonDestructableSpace, [i, row])) 
                 break;
             
-            broke = false
+            let broke = false
 
-            for (d of destructables.concat(powerups)) {
+            for (const d of destructables.concat(powerups)) {
                 if (d.getXY().x == toX(i) && d.getXY().y == toY(row)) {
                     d.destroy();
                     if (d.getType() == "destructable") broke = true;
@@ -206,9 +206,9 @@ $(document).ready(function () {
             if (includesArray(nonDestructableSpace, [col, i])) 
                 break;
             
-            broke = false
+            let broke = false
 
-            for (d of destructables.concat(powerups)) {
+            for (const d of destructables.concat(powerups)) {
                 if (d.getXY().x == toX(col) && d.getXY().y == toY(i)) {
                     d.destroy();
                     if (d.getType() == "destructable") broke = true;
@@ -233,9 +233,9 @@ $(document).ready(function () {
             if (includesArray(nonDestructableSpace, [col, i])) 
                 break;
             
-            broke = false
+            let broke = false
 
-            for (d of destructables.concat(powerups)) {
+            for (const d of destructables.concat(powerups)) {
                 if (d.getXY().x == toX(col) && d.getXY().y == toY(i)) {
                     d.destroy();
                     if (d.getType() == "destructable") broke = true;
@@ -331,7 +331,7 @@ $(document).ready(function () {
                 $("#winner-message").text("Player 2 wins!")
             }
             else $("#winner-message").text("Draw!")
-            updated_leaderboard = []
+            const updated_leaderboard = []
             $("#player1-score").text(players[0].getScore().toString());
             $("#player2-score").text(players[0].getScore().toString());
             // updated_leaderboard = leaderboard.update(players[0].getScore(), players[1].getScore());
