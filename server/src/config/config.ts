@@ -7,7 +7,7 @@ dotenv.config();
 const SERVER_PORT = process.env.SERVER_PORT
   ? Number(process.env.SERVER_PORT)
   // : 1337;
-  : 3000;
+  : 8000;
 const SALT = process.env.HASH_SALT ? Number(process.env.HASH_SALT) : 10;
 const DB_PATH = `./db/users.json`;
 const ROOM_PATH = `./db/rooms.json`;
