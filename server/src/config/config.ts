@@ -9,6 +9,7 @@ const SERVER_PORT = process.env.SERVER_PORT
   : 1337;
 const SALT = process.env.HASH_SALT ? Number(process.env.HASH_SALT) : 10;
 const DB_PATH = `./db/users.json`;
+const ROOM_PATH = `./db/rooms.json`;
 const SESSION_SECRET = process.env.SESSION_SECRET || "secret";
 const SESSION_EXPIRATION = process.env.SESSION_EXPIRATION
   ? Number(process.env.SESSION_EXPIRATION)
@@ -38,6 +39,7 @@ export const config = {
   },
   db: {
     path: DB_PATH,
+    room: ROOM_PATH
   },
   hash: {
     salt: SALT,
