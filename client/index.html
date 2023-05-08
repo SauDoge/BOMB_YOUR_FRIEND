@@ -36,6 +36,7 @@
     <script src="scripts/player.js"></script>
     <script src="scripts/init.js"></script>
     <script src="scripts/authentication.js" ></script>
+    <script src="scripts/room.js"></script>
 </head>
 
 <body>
@@ -144,19 +145,15 @@
                 <!-- Room Column-->
                 <div class="col-md-4" style="min-height: 40vh;" id="rooms">
                         <ul class="list-group" style="min-height: 40vh;">
-                          <li class="list-group-item">Room 1 <a href="game.html" class="btn btn-default btn-sm pull-right"><i class="bi bi-dpad-fill"></i> Join Room</a></li>
-                          <li class="list-group-item">Room 2<button type="button" class="btn btn-default btn-sm pull-right">Join</button></li>
-                          <li class="list-group-item">Room 3<button type="button" class="btn btn-default btn-sm pull-right">Join</button></li>
-                          <li class="list-group-item">
-                            <form>
+                        </ul>
+                        <form id="group-form">
                               <div class="form-group">
-                                <input type="text" class="form-control" placeholder="Enter room name">
+                                <input type="text" class="form-control" placeholder="Enter room name" id="room-name">
                               </div>
                               <button type="submit" class="btn btn-primary btn-sm">Create</button>
                             </form>
-                          </li>
-                        </ul>
-                        <div id="join-message" class="warning center"></div>
+                            <div id="register-message" class="warning center"></div>
+                        <div id="create-room-message" class="warning center"></div>
                 </div>
             </div>
 		</div>

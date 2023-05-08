@@ -10,11 +10,14 @@ socket.on('connect', () => {
 $(document).ready(function () {
     Form.init();
 
-    $('.list-group-item button').click(function (e) {
-        const room = $(this).parent().text().trim().split("Join")[0].split(" ")[1];
-        localStorage.setItem('room',room);
+    Room.getRooms((data) => {
+        for (let i = 0; i < data.room.length; ++i)
+            $('.list-group').append(`<li class="list-group-item">Room ${data.room[i].name}<button type="button" class="btn btn-default btn-sm pull-right">Join</button></li>`)
 
-        const username = getUsername();
+        $('.list-group-item button').click(function (e) {
+            const room = $(this).parent().text().trim().split("Join")[0].split(" ")[1];
+            localStorage.setItem('room', room);
+
 
         if(!username) {
             $('#join-message').text("Please login");
@@ -24,7 +27,7 @@ $(document).ready(function () {
         console.log(`${getUsername()} connect to room ${room}`);
         window.location.href = "game.html";
         return false;
-    })
+      });
 
     const cv = $("canvas").get(0);
     const context = cv.getContext("2d");

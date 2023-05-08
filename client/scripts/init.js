@@ -43,6 +43,17 @@ const Form = (() => {
             $('#signin-register').show();
             $('#signout-column').hide();
         });
+
+
+        $('#group-form').on('submit', (e) => {
+            e.preventDefault();
+
+            const room = $('#room-name').val().trim();
+            Room.createRoom(room, () => {
+                window.location.reload();
+            }, (error) => $('#create-room-message').text(error));
+        });
+
     }
     return { init };
 })();
