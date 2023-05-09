@@ -15,3 +15,6 @@ export const ERROR_LOGOUT = `Error logging out`;
 export const ROOM_ERROR = `Room name not specified`;
 export const DUPLICATE_ROOM = `Room duplicated`;
 export const SUCCESSFULLY_CREATE_ROOM = `Successfully create room`;
+export const SUCCESSFULLY_ADD_LEADERBOARD = `Successfully added to the leaderboard`;
+export const SUCCESSFULLY_UPDATE_LEADERBOARD = `Successfully update leaderboard;`
+export const MISSING_LEADERBOARD_PARAMETER = `Missing username or score parameter`;

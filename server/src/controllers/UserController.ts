@@ -49,7 +49,8 @@ const register = (req: Request, res: Response, next: NextFunction) => {
 
       fs.writeFileSync(config.db.path, JSON.stringify(users), "utf-8");
       logging.info(SUCCESSFULLY_REGISTER);
-      return res.status(201).json({ user });
+      next();
+      // return res.status(201).json({ user });
     });
   });
 };

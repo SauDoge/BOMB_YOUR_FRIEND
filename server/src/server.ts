@@ -7,7 +7,7 @@ import { config } from "./config/config";
 import { Server } from "socket.io";
 import { incomingMiddleware, corsMiddleware } from "./middlewares";
 import { SERVER_RUNNING_MSG } from "./utils/stringResources";
-import { userRoutes, roomRoutes } from "./routes";
+import { userRoutes, roomRoutes, leaderboardRoutes } from "./routes";
 
 const router = express();
 
@@ -37,7 +37,6 @@ const start = () => {
         "clientConnected",
         io.sockets.adapter.rooms.get(room)?.size
       );
-
     });
 
     // socket on a player sending a message
@@ -46,17 +45,14 @@ const start = () => {
       socket.to(msg.room).emit("receive", msg);
     });
 
-    // socket on a playing event 
+    // socket on a playing event
     // 1) placing a bomb
     //  1.1) an explosion
     // 2) picking up an item
     // 3) moving in a direction
     socket.on("placing bomb", () => {});
-    
+
     socket.on("retrieving item", () => {});
-
-
-
 
     // socket on a player logging out
     socket.on("disconnect", () => {
@@ -79,6 +75,7 @@ const createServer = () => {
 
   router.use("/auth", userRoutes);
   router.use("/room", roomRoutes);
+  router.use("/leaderboard", leaderboardRoutes);
 
   router.get("/ping", (req, res, next) =>
     res.status(200).json({ msg: SERVER_RUNNING_MSG })
