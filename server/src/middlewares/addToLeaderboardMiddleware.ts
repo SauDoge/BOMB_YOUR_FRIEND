@@ -33,7 +33,6 @@ const addToLeaderboardMiddleware = (
     }
 
     const user: LeaderBoard = {
-      ranking: (leaderboard.length + 1).toString(),
       username: username,
       score: "0",
     };

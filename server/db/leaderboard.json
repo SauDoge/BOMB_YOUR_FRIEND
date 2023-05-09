@@ -1,12 +1,14 @@
 [
     {
-        "ranking": "1",
-        "username": "tony",
-        "score": "90"
+        "username": "patrick",
+        "score": "0"
     },
     {
-        "ranking": "2",
+        "username": "tony",
+        "score": "0"
+    },
+    {
         "username": "may",
-        "score": "70"
+        "score": "0"
     }
 ]

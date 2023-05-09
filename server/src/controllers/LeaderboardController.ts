@@ -40,7 +40,7 @@ const updateLeaderboard = (req: Request, res: Response, next: NextFunction) => {
       "utf-8"
     );
     logging.info(SUCCESSFULLY_UPDATE_LEADERBOARD);
-    return res.status(201).json({ msg: SUCCESSFULLY_UPDATE_LEADERBOARD });
+    return res.status(201).json(leaderboard);
   });
 };
 
