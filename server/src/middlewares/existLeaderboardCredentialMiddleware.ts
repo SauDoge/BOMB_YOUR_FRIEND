@@ -15,13 +15,6 @@ const existLeaderboardCredentialMiddleware = (
     return res.status(400).json({ msg: MISSING_LEADERBOARD_PARAMETER });
   }
 
-  const { username, score } = req.body;
-
-  if (!username || !score) {
-    logging.error(MISSING_LEADERBOARD_PARAMETER);
-    return res.status(400).json({ msg: MISSING_LEADERBOARD_PARAMETER });
-  }
-
   next();
 };
 

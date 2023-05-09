@@ -332,8 +332,32 @@ $(document).ready(function () {
             }
             else $("#winner-message").text("Draw!")
             const updated_leaderboard = []
-            $("#player1-score").text(players[0].getScore().toString());
-            $("#player2-score").text(players[0].getScore().toString());
+
+            const player1Score = players[0].getScore();
+            const player2Score = players[1].getScore();
+
+            $("#player1-score").text(player1Score.toString());
+            $("#player2-score").text(player2Score.toString());
+
+            Leaderboard.updateLeaderboard(getUsername(), players[index].getScore(), (msg) => console.log(msg)).then((value) => {
+                const body = $('#leaderboard')
+                for (let i = 0; i < value.length; ++i) {
+                    const mainTag = $('<tr>');
+                    const rank = $('<td>').text(i + 1);
+                    const name = $('<td>').text(value[i].username);
+                    const score = $('<td>').text(value[i].score);
+                    mainTag.append(rank, name, score);
+                    body.append(mainTag);
+                }
+
+                // const player1 = $('<tr>');
+                // const player2 = $('<tr>');
+
+                // const rank1 = $('<td>').text('1');
+                // const 
+            });
+
+
             // updated_leaderboard = leaderboard.update(players[0].getScore(), players[1].getScore());
             // 
             // $('#leaderboard').empty();
